@@ -55,14 +55,16 @@ div.response > * {
 }
 
 div.response_prompt{
-    border-color: #ccc;
-    background-color: #ccc;
+    border-color: #ededed;
+    background-color: #ededed;
+    color: #333;
     margin-top: 50px;
 }
 
 div.response_response{
-    border-color: #efefef;
-    background-color: #efefef;
+    border-color: #f5f5f5;
+    background-color: #f5f5f5;
+    color: #555;
     margin-top: 10px;
 }
 
