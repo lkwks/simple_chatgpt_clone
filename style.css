@@ -42,11 +42,6 @@ margin-top: 100px;
     display:none;
 }
 
-.sending {
-    background-color: gray;
-}
-
-
 div.response{
     flex-direction: column;
     margin-bottom: 50px;
