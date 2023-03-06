@@ -82,7 +82,7 @@ class ResponseDiv{
         this.$target = $target;
     }
     
-    preprocess(content)
+    async preprocess(content)
     {
         let processed = content.replace("<", "&lt;").replace(">", "&gt;");
         console.log(processed);
@@ -93,18 +93,23 @@ class ResponseDiv{
             const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
                              {role: "user", content: "What is the language of this codes? Write your answer only in JSON array."}];
             let result = "";
-            chatgpt_api.api(message).then(outputJson => {
+            try{
+                const outputJson = await chatgpt_api.api(message);
                 const languages = JSON.parse(outputJson.choices[0].message.content);
                 let splitted = processed.split("```");
                 for (var i=0; i < splitted.length - 1; i+=2)
                     result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${splitted[i+1]}</code>`;
                 if (i % 2) result += splitted[splitted.length-1];
-            }).catch(()=>{result = processed;});
+            }
+            catch(e)
+            {
+                result = processed;
+            }
             return result;
         }
     }
 
-    update()
+    async update()
     {
         const new_prompt = document.createElement("div");
         const new_response = document.createElement("div");
@@ -114,8 +119,8 @@ class ResponseDiv{
         
         new_prompt.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-2].content);
 
-        new_prompt.innerHTML = `<pre>${this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
-        new_response.innerHTML = `<pre>${this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre>`;
+        new_prompt.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
+        new_response.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre>`;
 
         this.$target.appendChild(new_prompt);
         this.$target.appendChild(new_response);
@@ -134,10 +139,10 @@ document.querySelector("div.prompt > input").addEventListener("click", ()=>{
     {
         document.querySelector("div.prompt > textarea").readOnly = true;
         document.querySelector("div.prompt > textarea").classList.add("readOnly");
-        chatgpt_api.send(document.querySelector("div.prompt > textarea").value).then(result =>{
+        chatgpt_api.send(document.querySelector("div.prompt > textarea").value).then( async (result) =>{
             if (result)
             {
-                response_div.update();
+                await response_div.update();
                 document.querySelector("div.prompt > textarea").value = ""; 
             }
             document.querySelector("div.prompt > textarea").readOnly = false;
