@@ -16,7 +16,9 @@ document.getElementById("prompt").select();
 class ChatGPTAPI{
     constructor()
     {
-        this.messages = [];
+        const system_message = localStorage.getItem("system_message");
+        this.system_message = system_message ? system_message : "";
+        this.messages = [{role:"system", content:this.system_message}];
     }
 
     async api(messages)
@@ -35,7 +37,26 @@ class ChatGPTAPI{
     flush_messages()
     {
         const cutIndex = Math.ceil(this.messages.length / 3) * 2;
-        this.messages = this.messages.slice(cutIndex, this.messages.length);
+        this.messages = [{role:"system", content:this.system_message}, ...this.messages.slice(cutIndex, this.messages.length)];
+    }
+    
+    delete(content)
+    {
+        Array.from(response_div.$target.childNodes).forEach( (elem, i) => {
+            if (elem.original_content === content)
+            {
+                response_div.$target.removeChild(elem);
+                response_div.$target.removeChild(response_div.$target.childNodes[i+1]);
+                break;
+            }
+        });
+        this.messages.forEach( (elem, i) => {
+            if (elem.content === content)
+            {
+                this.messages = this.messages.splice(i, 2);
+                return;
+            }
+        });
     }
 
     send(prompt)
@@ -60,6 +81,25 @@ class ResponseDiv{
     {
         this.$target = $target;
     }
+    
+    preprocess(content)
+    {
+        let processed = content.replace("<", "&lt;").replace(">", "&gt;");
+        if (processed.split("```").length === 1)
+            return processed;
+        else
+        {
+            const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
+                             {role: "user", content: "What is the language of this codes? Write your answer only in JSON array."}];
+            chatgpt_api.api(message).then(outputJson => {
+                const languages = JSON.parse(outputJson.choices[0].message.content);
+                let splitted = processed.split("```"), result = "";
+                for (var i=0; i < splitted.length; i+=2)
+                    result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${splitted[i+1]}</code>`;
+                return result;
+            }).catch(()=>{return processed;});
+        }
+    }
 
     update()
     {
@@ -68,9 +108,11 @@ class ResponseDiv{
 
         new_prompt.classList.add("response_prompt");
         new_response.classList.add("response_response");
+        
+        new_prompt.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-2].content);
 
-        new_prompt.innerHTML = `<pre>${chatgpt_api.messages[chatgpt_api.messages.length-2].content}</pre>`;
-        new_response.innerHTML = `<pre>${chatgpt_api.messages[chatgpt_api.messages.length-1].content}</pre>`;
+        new_prompt.innerHTML = `<pre>${this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
+        new_response.innerHTML = `<pre>${this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre>`;
 
         this.$target.appendChild(new_prompt);
         this.$target.appendChild(new_response);
@@ -78,6 +120,11 @@ class ResponseDiv{
 }
 
 const response_div = new ResponseDiv(document.querySelector("div.response"));
+
+document.body.addEventListener("click", e=>{
+    if (e.target.nodeName === "P")
+        chatgpt_api.delete(e.target.parentNode.original_content);
+});
 
 document.querySelector("div.prompt > input").addEventListener("click", ()=>{
     if (document.querySelector("div.prompt > textarea").readOnly === false)
