@@ -59,6 +59,13 @@ div.response_prompt{
     background-color: #eaeaea;
     color: #333;
     margin-top: 50px;
+    position: relative;
+}
+
+p{
+    position: absolute;
+    top:0px;
+    right:0px;
 }
 
 div.response_response{
