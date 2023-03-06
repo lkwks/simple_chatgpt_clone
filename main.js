@@ -124,6 +124,7 @@ class ResponseDiv{
 
         this.$target.appendChild(new_prompt);
         this.$target.appendChild(new_response);
+        hljs.highlightAll();
     }
 }
 
