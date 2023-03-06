@@ -85,6 +85,7 @@ class ResponseDiv{
     preprocess(content)
     {
         let processed = content.replace("<", "&lt;").replace(">", "&gt;");
+        console.log(processed);
         if (processed.split("```").length === 1)
             return processed;
         else
@@ -96,6 +97,7 @@ class ResponseDiv{
                 let splitted = processed.split("```"), result = "";
                 for (var i=0; i < splitted.length; i+=2)
                     result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${splitted[i+1]}</code>`;
+                console.log(result);
                 return result;
             }).catch(()=>{return processed;});
         }
