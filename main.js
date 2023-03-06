@@ -92,14 +92,15 @@ class ResponseDiv{
         {
             const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
                              {role: "user", content: "What is the language of this codes? Write your answer only in JSON array."}];
+            let result = "";
             chatgpt_api.api(message).then(outputJson => {
                 const languages = JSON.parse(outputJson.choices[0].message.content);
-                let splitted = processed.split("```"), result = "";
-                for (var i=0; i < splitted.length; i+=2)
+                let splitted = processed.split("```");
+                for (var i=0; i < splitted.length - 1; i+=2)
                     result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${splitted[i+1]}</code>`;
-                console.log(result);
-                return result;
-            }).catch(()=>{return processed;});
+                if (i % 2) result += splitted[splitted.length-1];
+            }).catch(()=>{result = processed;});
+            return result;
         }
     }
 
