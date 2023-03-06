@@ -47,15 +47,12 @@ class ChatGPTAPI{
             {
                 response_div.$target.removeChild(elem);
                 response_div.$target.removeChild(response_div.$target.childNodes[i+1]);
-                this.messages.forEach( (elem, i) => {
-                    if (elem.content === content)
-                    {
-                        this.messages = this.messages.splice(i, 2);
-                        return;
-                    }
-                });
-                return;
             }
+        });
+
+        this.messages.forEach( (elem, i) => {
+            if (elem.content === content)
+                this.messages = this.messages.splice(i, 2);
         });
     }
 
