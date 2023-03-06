@@ -46,7 +46,7 @@ class ChatGPTAPI{
             if (elem.original_content === content)
             {
                 response_div.$target.removeChild(elem);
-                response_div.$target.removeChild(response_div.$target.childNodes[i+1]);
+                response_div.$target.removeChild(response_div.$target.childNodes[i]);
             }
         });
 
