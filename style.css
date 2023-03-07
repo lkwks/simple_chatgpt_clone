@@ -52,6 +52,7 @@ div.response > * {
     border: 10px solid;
     border-radius: 10px;
     padding: 10px;
+    position: relative;
 }
 
 div.response_prompt{
@@ -59,7 +60,6 @@ div.response_prompt{
     background-color: #eaeaea;
     color: #333;
     margin-top: 50px;
-    position: relative;
 }
 
 p{
