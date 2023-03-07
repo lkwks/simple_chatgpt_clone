@@ -86,9 +86,9 @@ class ResponseDiv{
             let result = "";
             try{
                 const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
-                                 {role: "user", content: "What is the language of this codes? Write your answer only in JSON array. If you can't find it, answer \"plaintext\""}];
+                                 {role: "user", content: "What are the languages of these codes? Write your answer only in JSON array. If you can't find it, answer \"plaintext\" at each code in JSON array."}];
                 const outputJson = await chatgpt_api.api(message);
-                console.log(outputJson.choices[0].message.content);
+                console.log(outputJson.choices[0].message.content, processed);
                 
                 const languages = JSON.parse(outputJson.choices[0].message.content);
                 let splitted = processed.split("```");
