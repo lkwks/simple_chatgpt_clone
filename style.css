@@ -34,6 +34,10 @@ textarea{
 width: 80%;
 }
 
+textarea:focus {
+  outline: none;
+}
+
 div.API_KEY {
 margin-top: 100px;
 }
