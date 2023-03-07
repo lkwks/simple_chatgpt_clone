@@ -43,7 +43,7 @@ class ChatGPTAPI{
     delete(elem)
     {
         this.messages.forEach( (e, i) => {
-            console.log(e.content, elem.original_content);
+            console.log(e.content, elem.original_content, elem);
             if (e.content === elem.original_content)
             {
                 this.messages = this.messages.splice(i, 1);
@@ -112,7 +112,7 @@ class ResponseDiv{
         new_response.classList.add("response_response");
         
         new_prompt.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-2].content);
-        new_prompt.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-1].content);
+        new_response.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-1].content);
 
         new_prompt.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
         new_response.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre><p>x</p>`;
