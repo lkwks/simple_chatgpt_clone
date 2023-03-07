@@ -92,7 +92,11 @@ class ResponseDiv{
                 const languages = JSON.parse(outputJson.choices[0].message.content);
                 let splitted = processed.split("```");
                 for (var i=0; i < splitted.length - 1; i+=2)
-                    result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${splitted[i+1]}</code>`;
+                {
+                    let code_content = splitted[i+1].split("\n");
+                    code_content[0] = "";
+                    result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${code_content.join("\n")}</code>`;
+                }
                 if (i % 2) result += splitted[splitted.length-1];
             }
             catch(e)
