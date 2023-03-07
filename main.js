@@ -46,14 +46,13 @@ class ChatGPTAPI{
             if (response_div.$target.childNodes[i].original_content === content)
             {
                 response_div.$target.removeChild(response_div.$target.childNodes[i]);
-                response_div.$target.removeChild(response_div.$target.childNodes[i]);
                 break;
             }
 
         this.messages.forEach( (elem, i) => {
             if (elem.content === content)
             {
-                this.messages = this.messages.splice(i, 2);
+                this.messages = this.messages.splice(i, 1);
                 return;
             }
         });
@@ -91,7 +90,7 @@ class ResponseDiv{
         else
         {
             const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
-                             {role: "user", content: "What is the language of this codes? Write your answer only in JSON array."}];
+                             {role: "user", content: "What is the language of this codes? Write your answer only in JSON array. If you can't answer, just answer `[\"plaintext\"]`"}];
             let result = "";
             try{
                 const outputJson = await chatgpt_api.api(message);
@@ -120,7 +119,7 @@ class ResponseDiv{
         new_prompt.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-2].content);
 
         new_prompt.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
-        new_response.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre>`;
+        new_response.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre><p>x</p>`;
 
         this.$target.appendChild(new_prompt);
         this.$target.appendChild(new_response);
