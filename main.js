@@ -86,7 +86,7 @@ class ResponseDiv{
             let result = "";
             try{
                 const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
-                                 {role: "user", content: "What is the language(s) of this code? Write your answer only in a JSON array. If you can't find it, just put \"plaintext\" at each code in the JSON array. Your answer should not contain ```"}];
+                                 {role: "user", content: "What is the language(s) of this code? Write your answer only in a JSON array, each language to each code block. If you can't find it, just put \"plaintext\" at each code in the JSON array. Your answer should not contain ```"}];
                 const outputJson = await chatgpt_api.api(message);
                 console.log(outputJson.choices[0].message.content, processed);
                 
