@@ -86,7 +86,7 @@ class ResponseDiv{
             let result = "";
             try{
                 const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
-                                 {role: "user", content: "What are the languages of these codes? Write your answer only in JSON array. If you can't find it, answer \"plaintext\" at each code in JSON array."}];
+                                 {role: "user", content: "What are the languages of these codes? Write your answer only in a JSON array. If you can't find it, just put \"plaintext\" at each code in the JSON array."}];
                 const outputJson = await chatgpt_api.api(message);
                 console.log(outputJson.choices[0].message.content, processed);
                 
@@ -125,6 +125,7 @@ class ResponseDiv{
         if (chatgpt_api.messages[chatgpt_api.messages.length-2].content !== "continue") this.$target.appendChild(new_prompt);
         this.$target.appendChild(new_response);
         hljs.highlightAll();
+        MathJax.typeset();
     }
 }
 
