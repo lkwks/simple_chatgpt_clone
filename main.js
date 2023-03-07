@@ -86,7 +86,7 @@ class ResponseDiv{
             let result = "";
             try{
                 const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
-                                 {role: "user", content: "What is the language(s) of this code? Write your answer only in a JSON array. If you can't find it, just put \"plaintext\" at each code in the JSON array. Only answer a JSON array, do not use code block."}];
+                                 {role: "user", content: "What is the language(s) of this code? Write your answer only in a JSON array. If you can't find it, just put \"plaintext\" at each code in the JSON array. Your answer should not contain ```"}];
                 const outputJson = await chatgpt_api.api(message);
                 console.log(outputJson.choices[0].message.content, processed);
                 
@@ -96,7 +96,10 @@ class ResponseDiv{
                 {
                     let code_content = splitted[i+1].split("\n");
                     code_content[0] = "";
-                    result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${code_content.join("\n")}</code>`;
+                    if (languages[parseInt(i/2)] !== "LaTeX")
+                        result += `${splitted[i]}<code class="language-${languages[parseInt(i/2)]}">${code_content.join("\n")}</code>`;
+                    else
+                        result += `${splitted[i]}$$\n${code_content.join("\n")}\n$$`;
                 }
                 if (i % 2) result += splitted[splitted.length-1];
             }
