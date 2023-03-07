@@ -64,7 +64,7 @@ div.response_prompt{
 
 p{
     position: absolute;
-    top:0px;
+    top:-20px;
     right:0px;
 }
 
@@ -77,4 +77,8 @@ div.response_response{
 
 .readOnly{
     background-color: #aaa;
+}
+
+code{
+    background-color: white;
 }
