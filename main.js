@@ -40,19 +40,13 @@ class ChatGPTAPI{
         this.messages = [{role:"system", content:this.system_message}, ...this.messages.slice(cutIndex, this.messages.length)];
     }
     
-    delete(content)
+    delete(elem)
     {
-        for (var i=0; i < response_div.$target.childNodes.length; i++)
-            if (response_div.$target.childNodes[i].original_content === content)
-            {
-                response_div.$target.removeChild(response_div.$target.childNodes[i]);
-                break;
-            }
-
-        this.messages.forEach( (elem, i) => {
-            if (elem.content === content)
+        this.messages.forEach( (e, i) => {
+            if (e.content === elem.original_content)
             {
                 this.messages = this.messages.splice(i, 1);
+                response_div.$target.removeChild(elem);
                 return;
             }
         });
@@ -117,6 +111,7 @@ class ResponseDiv{
         new_response.classList.add("response_response");
         
         new_prompt.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-2].content);
+        new_prompt.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-1].content);
 
         new_prompt.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
         new_response.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre><p>x</p>`;
@@ -131,7 +126,7 @@ const response_div = new ResponseDiv(document.querySelector("div.response"));
 
 document.body.addEventListener("click", e=>{
     if (e.target.nodeName === "P")
-        chatgpt_api.delete(e.target.parentNode.original_content);
+        chatgpt_api.delete(e.target.parentNode);
 });
 
 document.querySelector("div.prompt > input").addEventListener("click", ()=>{
