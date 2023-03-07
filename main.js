@@ -116,7 +116,7 @@ class ResponseDiv{
         new_prompt.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
         new_response.innerHTML = `<pre>${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre><p>x</p>`;
 
-        this.$target.appendChild(new_prompt);
+        if (chatgpt_api.messages[chatgpt_api.messages.length-2].content !== "continue") this.$target.appendChild(new_prompt);
         this.$target.appendChild(new_response);
         hljs.highlightAll();
     }
