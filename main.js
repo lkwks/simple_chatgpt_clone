@@ -78,16 +78,17 @@ class ResponseDiv{
     async preprocess(content)
     {
         let processed = content.replace("<", "&lt;").replace(">", "&gt;");
-        console.log(processed);
         if (processed.split("```").length === 1)
             return processed;
         else
         {
-            const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
-                             {role: "user", content: "What is the language of this codes? Write your answer only in JSON array. If you can't answer, just answer `[\"plaintext\"]`"}];
             let result = "";
             try{
+                const message = [{role: "assistant", content: chatgpt_api.messages[chatgpt_api.messages.length-1].content},
+                                 {role: "user", content: "What is the language of this codes? Write your answer only in JSON array. If you can't answer, just answer `[\"plaintext\"]`"}];
                 const outputJson = await chatgpt_api.api(message);
+                console.log(outputJson.choices[0].message.content);
+                
                 const languages = JSON.parse(outputJson.choices[0].message.content);
                 let splitted = processed.split("```");
                 for (var i=0; i < splitted.length - 1; i+=2)
