@@ -69,6 +69,7 @@ p{
     color: #aaa;
     font-weight: lighter;
     font-size: 8pt;
+    user-select: none;
 }
 
 div.response_response{
