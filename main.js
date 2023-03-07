@@ -78,7 +78,7 @@ class ResponseDiv{
     
     async preprocess(content)
     {
-        let processed = content.replace("<", "&lt;").replace(">", "&gt;");
+        let processed = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if (processed.split("```").length === 1)
             return processed;
         else
