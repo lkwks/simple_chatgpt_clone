@@ -43,6 +43,7 @@ class ChatGPTAPI{
     delete(elem)
     {
         this.messages.forEach( (e, i) => {
+            console.log(e.content, elem.original_content);
             if (e.content === elem.original_content)
             {
                 this.messages = this.messages.splice(i, 1);
