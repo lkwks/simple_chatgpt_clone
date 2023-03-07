@@ -47,6 +47,7 @@ class ChatGPTAPI{
             {
                 this.messages = this.messages.splice(i, 1);
                 response_div.$target.removeChild(elem);
+                console.log(this.messages);
                 return;
             }
         });
