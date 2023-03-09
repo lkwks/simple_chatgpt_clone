@@ -82,7 +82,7 @@ class ChatGPTAPI{
                 new_prompt.setAttribute("original_content", command_parameter);
                 response_div.$target.appendChild(new_prompt);
                 new_prompt.innerHTML = `<pre><code class="language-plaintext">${command_message}</code> ${command_parameter}</pre>`;
-                hljs.highlightElement(new_prompt.querySelector("code"));
+                hljs.highlightAll();
                 return false;
             });
         }
@@ -164,8 +164,9 @@ class ResponseDiv{
           new_response.setAttribute("original_content", chatgpt_api.messages[chatgpt_api.messages.length-1].content);
           this.$target.appendChild(new_response);
           new_response.innerHTML = `<pre class="tex2jax_process">${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre><p>x</p>`;
-          if (new_prompt.querySelector("code")) hljs.highlightElement(new_prompt.querySelector("code"));
-          if (new_response.querySelector("code")) hljs.highlightElement(new_response.querySelector("code"));
+          //if (new_prompt.querySelector("code")) hljs.highlightElement(new_prompt.querySelector("code"));
+          //if (new_response.querySelector("code")) hljs.highlightElement(new_response.querySelector("code"));
+          hljs.highlightAll();
 
           await MathJax.typesetPromise().then(async () => {
             MathJax.typesetPromise();
