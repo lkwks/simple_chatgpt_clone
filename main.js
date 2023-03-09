@@ -81,7 +81,7 @@ class ChatGPTAPI{
                 new_prompt.classList.add("response_prompt");
                 new_prompt.setAttribute("original_content", command_parameter);
                 response_div.$target.appendChild(new_prompt);
-                new_prompt.innerHTML = `<pre><code>${command_message}</code> ${command_parameter}</pre>`;
+                new_prompt.innerHTML = `<pre><code class="language-plaintext">${command_message}</code> ${command_parameter}</pre>`;
                 hljs.highlightElement(new_prompt.querySelector("code"));
                 return false;
             });
