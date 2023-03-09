@@ -15,17 +15,16 @@ document.getElementById("prompt").select();
 class ChatGPTAPI{
     constructor()
     {
-        this.messages = [{role:"system", content:""}];
+        this.messages = [];
     }
 
     set_system_message(prompt)
     {
-        this.messages[0].content = prompt;
+        this.messages.push({role: "system", content: prompt});
     }
 
     async api(messages)
     {
-console.log(messages);
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -83,6 +82,7 @@ console.log(messages);
                 new_prompt.setAttribute("original_content", command_parameter);
                 response_div.$target.appendChild(new_prompt);
                 new_prompt.innerHTML = `<pre><code>${command_message}</code> ${command_parameter}</pre>`;
+                hljs.highlightAll();
                 return false;
             });
         }
