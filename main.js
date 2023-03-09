@@ -79,7 +79,7 @@ class ChatGPTAPI{
             return new Promise(resolve => resolve()).then(()=>{
                 const new_prompt = document.createElement("div");
                 new_prompt.classList.add("response_prompt");
-                new_prompt.setAttribute("original_content", system_message);
+                new_prompt.setAttribute("original_content", command_parameter);
                 response_div.$target.appendChild(new_prompt);
                 new_prompt.innerHTML = `<pre><code>${command_message}</code> ${command_parameter}</pre>`;
                 return false;
