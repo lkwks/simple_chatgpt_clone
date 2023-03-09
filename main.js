@@ -62,11 +62,9 @@ class ChatGPTAPI{
         if (prompt[0] === "/")
         {
             const splitted = Array.from(prompt.split(" "));
-            const command = splitted[0];
-            let command_parameter = (splitted.length > 1 ? splitted[1] : false), command_message = "Command failed";
-            splitted.shift();
-            command_parameter = command_parameter.join(" ");
-
+            const command = splitted[0]; splitted.shift();
+            let command_parameter = splitted.join(" "), command_message = "Command failed";
+            
             if (command === "/system" && command_parameter)
             {
                 command_message = "System message changed";
