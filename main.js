@@ -61,10 +61,10 @@ class ChatGPTAPI{
         prompt = prompt.trim();
         if (prompt[0] === "/")
         {
-            const splitted = prompt.split(" ");
+            const splitted = Array.from(prompt.split(" "));
             const command = splitted[0];
             let command_parameter = (splitted.length > 1 ? splitted[1] : false), command_message = "Command failed";
-            splitted = splitted.slice(1);
+            splitted.shift();
             command_parameter = command_parameter.join(" ");
 
             if (command === "/system" && command_parameter)
