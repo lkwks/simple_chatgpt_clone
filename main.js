@@ -6,7 +6,6 @@ document.querySelector("div.API_KEY > input[type='submit']").addEventListener("c
     if (API_KEY_candidate.length > 10)
     {
         localStorage.setItem("API_KEY", API_KEY_candidate);
-        API_KEY = API_KEY_candidate;
         document.querySelector("div.API_KEY").classList.add("hide");        
     }
 });
@@ -30,7 +29,7 @@ class ChatGPTAPI{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`
+                "Authorization": `Bearer ${localStorage.getItem("API_KEY")}`
             },
             body: JSON.stringify({ model: "gpt-3.5-turbo", messages: messages })
         });
@@ -57,18 +56,32 @@ class ChatGPTAPI{
 
     send(prompt)
     {
-        if (!API_KEY) return false;
+        if (!API_KEY || prompt.length === 0) return false;
 
-        if (prompt.includes("/system "))
+        prompt = prompt.trim();
+        if (prompt[0] === "/")
         {
-            const system_message = prompt.replace("/system ", "");
-            this.set_system_message(system_message);
+            const splitted = prompt.split(" ");
+            const command = splitted[0];
+            let command_parameter = (splitted.length > 1 ? splitted[1] : false), command_message = "Command failed";
+
+            if (command === "/system" && command_parameter)
+            {
+                command_message = "System message changed";
+                this.set_system_message(command_parameter);
+            }
+            if (command === "/api_key" && command_parameter)
+            {
+                command_message = "API key changed";
+                localStorage.setItem("API_KEY", command_parameter);
+            }
+
             return new Promise(resolve => resolve()).then(()=>{
                 const new_prompt = document.createElement("div");
                 new_prompt.classList.add("response_prompt");
                 new_prompt.setAttribute("original_content", system_message);
                 response_div.$target.appendChild(new_prompt);
-                new_prompt.innerHTML = `<pre><code>System message changed</code> ${system_message}</pre>`;
+                new_prompt.innerHTML = `<pre><code>${command_message}</code> ${command_parameter}</pre>`;
                 return false;
             });
         }
