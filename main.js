@@ -59,16 +59,16 @@ class ChatGPTAPI{
     {
         if (!API_KEY) return false;
 
-        if (prompt.includes("System::"))
+        if (prompt.includes("/system "))
         {
-            const system_message = prompt.replace("System::", "");
+            const system_message = prompt.replace("/system ", "");
             this.set_system_message(system_message);
             return new Promise(resolve => resolve()).then(()=>{
                 const new_prompt = document.createElement("div");
                 new_prompt.classList.add("response_prompt");
                 new_prompt.setAttribute("original_content", system_message);
                 response_div.$target.appendChild(new_prompt);
-                new_prompt.innerHTML = `<pre>System message changed: ${system_message}</pre>`;
+                new_prompt.innerHTML = `<pre><code>System message changed</code> ${system_message}</pre>`;
                 return false;
             });
         }
