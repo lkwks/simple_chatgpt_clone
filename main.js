@@ -23,6 +23,62 @@ class Categories{
         if (! this.categories) this.categories = [];
     }
 
+
+    add(category_name)
+    {
+        for (var i=0; i<this.categories.length; i++)
+            if (this.categories[i] === category_name) return false;
+        this.categories.push(category_name);
+        localStorage.setItem("categories", JSON.stringify(this.categories));
+        return true;
+    }
+
+    modify(old_name, new_name)
+    {
+        for (var i=0; i<this.categories.length; i++)
+            if (this.categories[i] === old_name)
+            {
+                this.categories[i] = new_name;
+                localStorage.setItem("categories", JSON.stringify(this.categories));
+                return true;
+            }
+        return false;
+    }
+
+
+    show_category_list()
+    {
+        this.$target.querySelector("div.categories_title").innerText = "Categories";
+
+        this.categories.forEach( (elem, i) => {
+            if (elem)
+            {
+                const div = document.createElement("div");
+                div.classList.add("category_icon");
+                div.setAttribute("category_id", i);
+                div.innerText = elem;
+                this.$target.querySelector("div.categories_content").appendChild(div);
+            }
+        });
+    }
+
+    move_category(category_id)
+    {
+        this.$target.querySelector("div.categories_title").innerText = this.categories[category_id];
+        const child = JSON.parse(localStorage.getItem(`category_${category_id}`));
+
+        child.forEach( elem => {
+            if (elem)
+            {
+                const div = document.createElement("div");
+                div.classList.add("thread_icon");
+                div.setAttribute("thread_id", elem.id);
+                div.innerHTML = `${elem.title}<p>x</p>`;
+                this.$target.querySelector("div.categories_content").appendChild(div);
+            }
+        });
+    }        
+
     /*
 
     1. 대화 내용이 조금 길어진다 싶으면(500토큰 이상) 다음 처리를 한다.
@@ -32,17 +88,18 @@ class Categories{
     - 코드블럭의 언어를 얻어온 다음에 버릴 게 아니라 메시지에 삽입을 해야겠다. 그래야 렌더링이 빨라짐.
     - 그 URI 안에서는, 메시지 하나 생성될 때마다 로컬 스토리지에 담는다. 
 
-    2. 카테고리 버튼을 누르면 카테고리 목록이 뜬다. 카테고리 추가/수정/삭제는 `/category add [카테고리명]` 같은 커맨드로 한다.
-
     3. 구현을 위해 고려할 로컬 스토리지 구조
     - 카테고리 목록: `categories`. 카테고리명이 키고 그에 대한 URI 값이 딕셔너리로 저장돼있음. (카테고리 생성된 순서대로 숫자 매겨서.)
-    - 각 카테고리에 있는 타래들 URI의 목록이 담긴 키값: `category_[카테고리 URI값]`. 배열이고, 각 인덱스마다 타래 URI, 제목이 들어있음.
-    - 각 타래의 내용이 담긴 키값: `thread_[타래 URI값]`. messages, messages_token, timestamps가 다 있음. 
+    - 각 카테고리에 있는 타래들 URI의 목록이 담긴 키값: `category_[카테고리 URI값]`. 배열이고, 각 인덱스마다 {URI:"", 제목:""}이 들어있음.
+    - 각 타래의 내용이 담긴 키값: `thread_[타래 URI값]`. {messages:[], messages_token:[], timestamps:[]}가 다 있음. 
 
     4. 카테고리 목록에서 카테고리를 누르면 타래 목록이 뜬다. 각 타래는 아이콘 모양이고, x버튼이 귀퉁이에 있어 삭제가 쉽다. 
 
-    지금 구현 목표로 삼고 있는 것들 대비 우선순위는 별로 높지 않은데(필요하고 구현하면 좋은 기능이라고 생각하긴 함)
-    그에 반해 들여야 하는 품은 생각보다 훨씬 많은 거 같아서.... 주말 이틀 추가로 쓰면 완성할 만한 내용이긴 한데 일단 보류..
+***
+
+지금 구현해야 하는 게
+1) 500토큰 이상 
+
 
     */
 }
@@ -140,6 +197,37 @@ class ChatGPTAPI{
                 command_message = "API key changed";
                 localStorage.setItem("API_KEY", command_parameter);
             }
+            if (command === "/category" && command_parameter)
+            {
+                command_parameter = command_parameter.split(" ");
+
+                if (command_parameter[0] === "add" && command_parameter[1])
+                {
+                    command_message = "Addition";
+                    if (categories.add(command_parameter[1]))
+                        command_message += " Succeed.";
+                    else
+                        command_message += " Failed.";
+                }
+                if (command_parameter[0] === "modify" && command_parameter[1] && command_parameter[2])
+                {
+                    command_message = "Modification";
+                    if (categories.modify(command_parameter[1], command_parameter[2]))
+                        command_message += " Succeed.";
+                    else
+                        command_message += " Failed.";
+                }
+                if (command_parameter[0] === "delete" && command_parameter[1])
+                {
+                    command_message = "Deletion";
+                    if (categories.modify(command_parameter[1], ""))
+                        command_message += " Succeed.";
+                    else
+                        command_message += " Failed.";
+                }
+            }
+            
+            
 
             return new Promise(resolve => resolve()).then(()=>{
                 const new_prompt = document.createElement("div");
@@ -159,6 +247,9 @@ class ChatGPTAPI{
             this.push_message({role: "assistant", content: outputJson.choices[0].message.content});
             this.messages_token.push(outputJson.usage.prompt_tokens);
             this.messages_token.push(outputJson.usage.completion_tokens);
+            
+            // 로컬스토리지 업데이트, 500토큰 넘을 시 타이틀 구해서 카테고리에 넣고 새 URI로 이동하는  여기 구현. 
+            
             console.log(outputJson.choices[0].message.content);
             console.log(outputJson.usage.total_tokens);
             if (outputJson.usage.total_tokens > 4000) this.flush_messages();
@@ -174,6 +265,7 @@ class ResponseDiv{
     constructor($target)
     {
         this.$target = $target;
+        //현재 URI 파싱해서 로컬 스토리지에 있는 부분은 가져와서 렌더링 하는 코드 여기 추가. 
     }
     
     async preprocess(content)
@@ -207,6 +299,7 @@ class ResponseDiv{
                     }
                 }
                 result += `${splitted[i]}<code class="language-${language}">${code_content.join("\n")}</code>`;
+                // language를 얻어온 다음에 chatgpt_api.messages의 내용을 수정하는 코드가 필요.
             }
             if (splitted.length % 2) result += splitted[splitted.length-1];
 
