@@ -32,6 +32,7 @@ main{
 width: 100%;
 height: 100%;
 flex-direction: column;
+position: relative;
 }
 
 @media (min-width: 800px)
@@ -42,10 +43,30 @@ flex-direction: column;
     }
 }
 
+div.title{
+    height: 20px;
+}
+
+div.title > button {
+    background-color: #eee;
+    border: 0px;
+    color: #333;
+}
+
+div.categories{
+    position: absolute;
+    top: 20px;
+    left: 0px;
+    border: 1px solid black;
+    background-color: white;
+    height: calc(100% - 20px);
+    width: 100%;
+}
 
 div.prompt{
     height: 50px;
-flex-direction: row;
+    flex-direction: row;
+    margin-top: 10px;
 }
 
 textarea{
@@ -76,7 +97,7 @@ margin-top: 100px;
 }
 
 div.response{
-    height: calc(100vh - 50px);
+    height: calc(100vh - 70px);
     overflow-y: scroll;
     overflow-x: hidden;
     display: block;
@@ -118,8 +139,15 @@ div.response_response{
     background-color: #aaa;
 }
 
-code{
+pre > code{
     background-color: white !important;
     padding: 25px !important;
     border-radius: 10px;
+}
+
+span > code {
+    width: fit-content;
+    margin: 5px;
+    padding: 5px;
+    background-color: white;
 }
