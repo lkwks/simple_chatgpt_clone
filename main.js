@@ -80,27 +80,20 @@ class Categories{
     }        
 
     /*
-
     1. 대화 내용이 조금 길어진다 싶으면(500토큰 이상) 다음 처리를 한다.
     - 현재 대화내용에 관한 타래 제목을 얻어온다.
     - 그 제목에 해당하는 URI를 만들고, 타래 내용을 그 URI에 해당하는 로컬스토리지에 저장하고, 그 URI로 페이지를 넘긴다.
     - 넘어온 페이지에서는, URI에 해당하는 로컬 스토리지 내용을 긁어와 렌더링을 수행한다. messagges, messages_token, timestamps도 다 담는다.
     - 코드블럭의 언어를 얻어온 다음에 버릴 게 아니라 메시지에 삽입을 해야겠다. 그래야 렌더링이 빨라짐.
     - 그 URI 안에서는, 메시지 하나 생성될 때마다 로컬 스토리지에 담는다. 
-
     3. 구현을 위해 고려할 로컬 스토리지 구조
     - 카테고리 목록: `categories`. 카테고리명이 키고 그에 대한 URI 값이 딕셔너리로 저장돼있음. (카테고리 생성된 순서대로 숫자 매겨서.)
     - 각 카테고리에 있는 타래들 URI의 목록이 담긴 키값: `category_[카테고리 URI값]`. 배열이고, 각 인덱스마다 {URI:"", 제목:""}이 들어있음.
     - 각 타래의 내용이 담긴 키값: `thread_[타래 URI값]`. {messages:[], messages_token:[], timestamps:[]}가 다 있음. 
-
     4. 카테고리 목록에서 카테고리를 누르면 타래 목록이 뜬다. 각 타래는 아이콘 모양이고, x버튼이 귀퉁이에 있어 삭제가 쉽다. 
-
 ***
-
 지금 구현해야 하는 게
 1) 500토큰 이상 
-
-
     */
 }
 
@@ -253,8 +246,9 @@ class ChatGPTAPI{
             console.log(outputJson.choices[0].message.content);
             console.log(outputJson.usage.total_tokens);
             if (outputJson.usage.total_tokens > 4000) this.flush_messages();
+            console.log(outputJson);
             return outputJson.choices[0].finish_reason;
-        }).catch(()=>{this.messages.pop(); return false;});
+        }).catch(e=>{console.log("error", e); this.messages.pop(); return false;});
     }
 }
 
@@ -287,8 +281,8 @@ class ResponseDiv{
                 else if (language === "")
                 {
                     try{
-                        const message = [{role: "assistant", content: code_content.join("\n")},
-                                         {role: "user", content: "What is the language of this code? Answer only in one word. Or, just answer this word: plaintext."}];
+                        const message = [{role: "assistant", content: `${splitted[i]} \`\`\`${code_content.join("\n")}\`\`\` }`},
+                                         {role: "user", content: "What is the language of this code? Answer only in one word. If you can't find its language, just answer this word: plaintext."}];
                         const outputJson = await chatgpt_api.api(message);
                         language = outputJson.choices[0].message.content.trim().replace(".", ""); 
                         console.log(language);
@@ -298,6 +292,8 @@ class ResponseDiv{
                         language = "plaintext";
                     }
                 }
+                if (language in ["Bash", "C", "C#", "C++", "CSS", "Diff", "Go", "GraphQL", "HTML, XML", "JSON", "Java", "JavaScript", "Kotlin", "Less", "Lua", "Makefile", "Markdown", "Objective-C", "PHP", "PHPT", "Perl", "Python", "IPython", "R", "Ruby", "Rust", "SCSS", "SQL", "Shell", "Session", "Swift", "TOML", "INI", "TypeScript", "VB.NET", "WebAssembly", "YAML"] === false)
+                    language = "plaintext";
                 result += `${splitted[i]}<code class="language-${language}">${code_content.join("\n")}</code>`;
                 // language를 얻어온 다음에 chatgpt_api.messages의 내용을 수정하는 코드가 필요.
             }
