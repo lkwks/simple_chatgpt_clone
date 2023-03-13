@@ -294,7 +294,7 @@ class ResponseDiv{
                 }
                 if (language in ["Bash", "C", "C#", "C++", "CSS", "Diff", "Go", "GraphQL", "HTML, XML", "JSON", "Java", "JavaScript", "Kotlin", "Less", "Lua", "Makefile", "Markdown", "Objective-C", "PHP", "PHPT", "Perl", "Python", "IPython", "R", "Ruby", "Rust", "SCSS", "SQL", "Shell", "Session", "Swift", "TOML", "INI", "TypeScript", "VB.NET", "WebAssembly", "YAML"] === false)
                     language = "plaintext";
-                result += `${splitted[i]}<code class="language-${language}">${code_content.join("\n")}</code>`;
+                result += `${splitted[i]}<code class="language-${language}"><p class="block">\`\`\`</p>${code_content.join("\n")}<p class="block">\`\`\`</p></code>`;
                 // language를 얻어온 다음에 chatgpt_api.messages의 내용을 수정하는 코드가 필요.
             }
             if (splitted.length % 2) result += splitted[splitted.length-1];
