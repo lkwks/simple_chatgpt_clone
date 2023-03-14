@@ -1,20 +1,16 @@
-
-
 pre{
     white-space: pre-wrap;
-margin: 0px;
-line-height: 1.4;
-font-family: auto;
-width: 100%;
+    margin: 0px;
+    line-height: 1.4;
+    font-family: auto;
+    width: 100%;
 }
 
 body, main, div{
-display: flex;
-justify-content: center;
-align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
-
 
 body{
     justify-content: center;
@@ -25,16 +21,11 @@ body{
     overflow: hidden;
 }
 
-
-main > div {
-width: 100%;
-}
-
 main{
-width: 100%;
-height: 100%;
-flex-direction: column;
-position: relative;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    position: relative;
 }
 
 @media (min-width: 800px)
@@ -43,6 +34,10 @@ position: relative;
         height: 85%;
         width: 70%;
     }
+}
+
+main > div {
+    width: 100%;
 }
 
 div.title{
@@ -72,10 +67,10 @@ div.prompt{
 }
 
 textarea{
-width: calc(100% - 50px);
-height: 100%;
-border: 0px;
-background-color: #eee;
+    width: calc(100% - 50px);
+    height: 100%;
+    border: 0px;
+    background-color: #eee;
 }
 
 div.prompt > input {
@@ -87,11 +82,11 @@ div.prompt > input {
 }
 
 textarea:focus {
-  outline: none;
+    outline: none;
 }
 
 div.API_KEY {
-margin-top: 100px;
+    margin-top: 100px;
 }
 
 .hide{
@@ -113,7 +108,14 @@ div.response > * {
     position: relative;
 }
 
-div.response_prompt{
+div.user{
+    border-color: #eaeaea;
+    background-color: #eaeaea;
+    color: #333;
+    margin-top: 50px;
+}
+
+div.system{
     border-color: #eaeaea;
     background-color: #eaeaea;
     color: #333;
@@ -130,7 +132,7 @@ p{
     user-select: none;
 }
 
-div.response_response{
+div.assistant{
     border-color: #f5f5f5;
     background-color: #f5f5f5;
     color: #333;
@@ -149,11 +151,24 @@ pre > code{
 
 span > code {
     width: fit-content;
-    margin: 5px;
-    padding: 5px;
+    padding: 3px;
     background-color: white;
 }
 
-p.block {
-    color: white;
+span.block {
+    display: block;
+    height: 1px;
+}
+
+span.block, span.block_inline {
+    color:transparent;
+}
+
+span.block_inline{
+    width: 0px;
+}
+
+span {
+    display: inline-block;
+    width: fit-content;
 }
