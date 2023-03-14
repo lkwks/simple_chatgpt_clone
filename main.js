@@ -1,6 +1,9 @@
 let API_KEY = localStorage.getItem("API_KEY");
 if (API_KEY && API_KEY !== "null") document.querySelector("div.API_KEY").classList.add("hide");
 
+let model = localStorage.getItem("model");
+if (!model || model === "null") localStorage.setItem("model", "gpt-3.5-turbo");
+
 document.getElementById("prompt").select();
 document.querySelector("div.categories").classList.add("hide");
 
@@ -218,7 +221,7 @@ async function chatgpt_api(messages)
             "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("API_KEY")}`
         },
-        body: JSON.stringify({ model: "gpt-3.5-turbo", messages: messages})
+        body: JSON.stringify({ model: localStorage.getItem("model"), messages: messages})
     });
     return await response.json();
 }
@@ -275,6 +278,11 @@ class Textarea{
                 else
                     command_message += " Failed.";
             }
+        }
+        if (command == "/model" && command_parameter)
+        {
+            command_message = "Model changed";
+            localStorage.setItem("model", command_parameter);
         }
         
         const message_obj = new Message(command_parameter, "system", command_message);
