@@ -207,8 +207,7 @@ class Messages{
 
     get_last_element()
     {
-        console.log(this.message_objects);
-        return this.message_objects[this.message_objects.length-1].element;                
+        return this.messages[this.messages.length-1].content;                
     }
 }
 
@@ -360,7 +359,7 @@ class Textarea{
             console.log(e);
             this.unlock();
             this.focus();
-            this.$target.value = (messages.get_last_element()).value;
+            this.$target.value = messages.get_last_element();
             messages.delete_message(response_div.$target.lastChild);
         });
     
