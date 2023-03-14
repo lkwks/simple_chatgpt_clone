@@ -1,20 +1,9 @@
 let API_KEY = localStorage.getItem("API_KEY");
 if (API_KEY && API_KEY !== "null") document.querySelector("div.API_KEY").classList.add("hide");
 
-document.querySelector("div.API_KEY > input[type='submit']").addEventListener("click", ()=>{
-    const API_KEY_candidate = document.querySelector("div.API_KEY > input[type='text']").value;
-    if (API_KEY_candidate.length > 10)
-    {
-        localStorage.setItem("API_KEY", API_KEY_candidate);
-        document.querySelector("div.API_KEY").classList.add("hide");        
-    }
-});
 document.getElementById("prompt").select();
 document.querySelector("div.categories").classList.add("hide");
 
-document.querySelector("div.title > button.categories").addEventListener("click", ()=>{
-    document.querySelector("div.categories").classList.toggle("hide");
-});
 
 class Categories{
     constructor()
@@ -81,179 +70,295 @@ class Categories{
 
     /*
     1. 대화 내용이 조금 길어진다 싶으면(500토큰 이상) 다음 처리를 한다.
-    - 현재 대화내용에 관한 타래 제목을 얻어온다.
-    - 그 제목에 해당하는 URI를 만들고, 타래 내용을 그 URI에 해당하는 로컬스토리지에 저장하고, 그 URI로 페이지를 넘긴다.
     - 넘어온 페이지에서는, URI에 해당하는 로컬 스토리지 내용을 긁어와 렌더링을 수행한다. messagges, messages_token, timestamps도 다 담는다.
-    - 코드블럭의 언어를 얻어온 다음에 버릴 게 아니라 메시지에 삽입을 해야겠다. 그래야 렌더링이 빨라짐.
-    - 그 URI 안에서는, 메시지 하나 생성될 때마다 로컬 스토리지에 담는다. 
+
     3. 구현을 위해 고려할 로컬 스토리지 구조
     - 카테고리 목록: `categories`. 카테고리명이 키고 그에 대한 URI 값이 딕셔너리로 저장돼있음. (카테고리 생성된 순서대로 숫자 매겨서.)
     - 각 카테고리에 있는 타래들 URI의 목록이 담긴 키값: `category_[카테고리 URI값]`. 배열이고, 각 인덱스마다 {URI:"", 제목:""}이 들어있음.
     - 각 타래의 내용이 담긴 키값: `thread_[타래 URI값]`. {messages:[], messages_token:[], timestamps:[]}가 다 있음. 
+
     4. 카테고리 목록에서 카테고리를 누르면 타래 목록이 뜬다. 각 타래는 아이콘 모양이고, x버튼이 귀퉁이에 있어 삭제가 쉽다. 
-***
-지금 구현해야 하는 게
-1) 500토큰 이상 
+    - 이거 구현이 귀찮은데... 
     */
 }
 
+class Message{
+    constructor(message, class_name, system_message="")
+    {
+        this.timestamp = (new Date()).getTime();
+        this.element = this.make_element(message, class_name, system_message);
+        this.token = message.split(" ").length * 5;
+    }
 
-class ChatGPTAPI{
+    process_inline(message)
+    {
+        let splitted_inline = message.split("`"), result_inline="";
+        for (var i=0; i < splitted_inline.length - 1; i+=2)
+            result_inline += `${splitted_inline[i]}<span class="block_inline">\`</span><span><code>${splitted_inline[i+1]}</code></span><span class="block_inline">\`</span>`;
+        if (splitted_inline.length % 2) result_inline += splitted_inline[splitted_inline.length-1];
+        return result_inline;
+    }
+
+    make_element(message, class_name, system_message="")
+    {
+        if (system_message !== "")
+            message = `${system_message}: "${message}"`;
+
+        const new_element = document.createElement("div");
+        new_element.setAttribute("timestamp", this.timestamp);
+        new_element.classList.add(class_name);
+
+        let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
+        let result = "";
+
+        for (var i=0; i < splitted.length - 1; i+=2)
+        {
+            let code_content = splitted[i+1].split("\n");
+            let language = code_content[0].trim();
+            let result_inline = this.process_inline(splitted[i]);
+            code_content.shift();
+
+            if (language === "LaTeX")
+                result += `${result_inline}$$\n${code_content.join("\n")}\n$$`;
+            else
+            {
+                if (language === "")
+                    language = "plaintext";
+                result += `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
+            }
+        }
+        if (splitted.length % 2) result += this.process_inline(splitted[splitted.length-1]);
+
+
+        new_element.innerHTML = `<pre class="tex2jax_process">${result}</pre><p>x</p>`;
+       
+ 
+        Array.from(new_element.querySelectorAll("pre > code")).forEach(elem => hljs.highlightElement(elem));
+        return new_element;
+    }
+}
+
+class Messages{
     constructor()
     {
         this.messages = [{role: "user", content: ""}];
-        this.messages_token = [0];
-        this.timestamps = [null];
+        this.message_objects = [new Message("", "user")];
         this.system_message = {role: "system", content: ""};
     }
 
     push_message(elem)
     {
-        this.timestamps.push((new Date()).getTime());
+        elem.content = elem.content.trim();
+        this.message_objects.push(new Message(elem.content, elem.role));
         this.messages.push(elem);
+        let k = this.message_objects[this.message_objects.length-1].element;
+        response_div.render_message(k);
     }
 
     set_system_message(prompt)
     {
-        this.system_message = prompt;
-        this.messages_token.push(parseInt(prompt.length/2));
-        this.push_message({role: "system", content: prompt});
+        this.system_message = {role: "system", content: prompt};
     }
 
-    async api(messages)
-    {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("API_KEY")}`
-            },
-            body: JSON.stringify({ model: "gpt-3.5-turbo", messages: messages})
-        });
-        return await response.json();
-    }
-
-    flush_messages()
+    flush_if_too_many_tokens()
     {
         let cutIndex = 0, now_count = 0;
 
-        for (; cutIndex<this.messages.length; cutIndex++)
+        for (var i=0; i<this.messages.length; i++)
         {
-            now_count += this.messages_token[i];
-            if (now_count > 1024) break;
+            now_count += this.message_objects[i].token;
+            if (now_count > 1024 && cutIndex === 0) 
+                cutIndex = i;
         }
         
-        this.messages = this.messages.slice(cutIndex, this.messages.length);
-        this.messages_token = this.messages_token.slice(cutIndex, this.messages_token.length);
-        this.timestamps = this.timestamps.slice(cutIndex, this.timestamps.length);
-        this.set_system_message(this.system_message);
+        if (now_count > 3072) //이거보다 더 길면 응답 메시지가 너무 짧아지므로 flush
+        {
+            if (cutIndex === this.messages.length-1) cutIndex--;
+            this.messages = this.messages.slice(cutIndex, this.messages.length);
+            this.message_objects = this.message_objects.slice(cutIndex, this.messages.length);
+        }
     }
 
-    delete_message(i)
+    delete_message(elem)
     {
-        this.messages.splice(i, 1);
-        this.timestamps.splice(i, 1);
-        this.messages_token.splice(i, 1);
-    }
-    
-    delete(elem)
-    {
-        response_div.$target.removeChild(elem);
-        for (var i=0; i<this.timestamps.length; i++)
-        {
-            if (parseInt(this.timestamps[i]) === parseInt(elem.getAttribute("timestamp")))
+        response_div.remove(elem);
+        for (var i=0; i<this.messages.length; i++)
+            if (parseInt(this.message_objects[i]) === parseInt(elem.getAttribute("timestamp")))
             {
-                this.delete_message(i);
+                this.messages.splice(i, 1);
+                this.message_objects.splice(i, 1);
                 return;
             }
-        }
     }
 
-    send(prompt)
+
+    update_last_token(token_n)
     {
-        if (!API_KEY || prompt.length === 0) return new Promise(resolve => resolve()).then(()=> {return false});
+        this.message_objects[this.message_objects.length-1].token = token_n;
+    }
 
-        prompt = prompt.trim();
-        if (prompt[0] === "/")
-        {
-            const splitted = Array.from(prompt.split(" "));
-            const command = splitted[0]; splitted.shift();
-            let command_parameter = splitted.join(" "), command_message = "Command failed";
-            
-            if (command === "/system" && command_parameter)
-            {
-                command_message = "System message changed";
-                this.set_system_message(command_parameter);
-            }
-            if (command === "/api_key" && command_parameter)
-            {
-                command_message = "API key changed";
-                localStorage.setItem("API_KEY", command_parameter);
-            }
-            if (command === "/category" && command_parameter)
-            {
-                command_parameter = command_parameter.split(" ");
+    scrollIntoView(i=0)
+    {
+        this.message_objects[this.message_objects.length-i-1].element.scrollIntoView({ behavior: 'smooth' });
+    }
 
-                if (command_parameter[0] === "add" && command_parameter[1])
-                {
-                    command_message = "Addition";
-                    if (categories.add(command_parameter[1]))
-                        command_message += " Succeed.";
-                    else
-                        command_message += " Failed.";
-                }
-                if (command_parameter[0] === "modify" && command_parameter[1] && command_parameter[2])
-                {
-                    command_message = "Modification";
-                    if (categories.modify(command_parameter[1], command_parameter[2]))
-                        command_message += " Succeed.";
-                    else
-                        command_message += " Failed.";
-                }
-                if (command_parameter[0] === "delete" && command_parameter[1])
-                {
-                    command_message = "Deletion";
-                    if (categories.modify(command_parameter[1], ""))
-                        command_message += " Succeed.";
-                    else
-                        command_message += " Failed.";
-                }
-            }
-            
-            
-
-            return new Promise(resolve => resolve()).then(()=>{
-                const new_prompt = document.createElement("div");
-                new_prompt.classList.add("response_prompt");
-                new_prompt.setAttribute("timestamp", (new Date()).getTime());
-                response_div.$target.appendChild(new_prompt);
-                new_prompt.innerHTML = `<pre><span style="display:inline"><code class="language-plaintext">${command_message}</code></span>"${command_parameter}"</pre>`;
-                document.querySelector("div.prompt > textarea").value = ""; 
-                return false;
-            });
-        }
-        
-
-        this.push_message({ role: "user", content: prompt });
-        
-        return this.api(this.messages).then(outputJson => {
-            this.push_message({role: "assistant", content: outputJson.choices[0].message.content});
-            this.messages_token.push(outputJson.usage.prompt_tokens);
-            this.messages_token.push(outputJson.usage.completion_tokens);
-            
-            // 로컬스토리지 업데이트, 500토큰 넘을 시 타이틀 구해서 카테고리에 넣고 새 URI로 이동하는  여기 구현. 
-            
-            console.log(outputJson.choices[0].message.content);
-            console.log(outputJson.usage.total_tokens);
-            if (outputJson.usage.total_tokens > 4000) this.flush_messages();
-            console.log(outputJson);
-            return outputJson.choices[0].finish_reason;
-        }).catch(e=>{console.log("error", e); this.messages.pop(); return false;});
+    get_last_element()
+    {
+        console.log(this.message_objects);
+        return this.message_objects[this.message_objects.length-1].element;                
     }
 }
 
-const chatgpt_api = new ChatGPTAPI();
 
+async function chatgpt_api(messages)
+{
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("API_KEY")}`
+        },
+        body: JSON.stringify({ model: "gpt-3.5-turbo", messages: messages})
+    });
+    return await response.json();
+}
+
+
+
+class Textarea{
+    constructor($target)
+    {
+        this.$target = $target;
+    }
+
+    process_command(prompt)
+    {
+        const splitted = Array.from(prompt.split(" "));
+        const command = splitted[0]; splitted.shift();
+        let command_parameter = splitted.join(" "), command_message = "Command failed";
+        
+        if (command === "/system" && command_parameter)
+        {
+            command_message = "System message changed";
+            messages.set_system_message(command_parameter);
+        }
+        if (command === "/api_key" && command_parameter)
+        {
+            command_message = "API key changed";
+            localStorage.setItem("API_KEY", command_parameter);
+        }
+        if (command === "/category" && command_parameter)
+        {
+            command_parameter = command_parameter.split(" ");
+
+            if (command_parameter[0] === "add" && command_parameter[1])
+            {
+                command_message = "Addition";
+                if (categories.add(command_parameter[1]))
+                    command_message += " Succeed.";
+                else
+                    command_message += " Failed.";
+            }
+            if (command_parameter[0] === "modify" && command_parameter[1] && command_parameter[2])
+            {
+                command_message = "Modification";
+                if (categories.modify(command_parameter[1], command_parameter[2]))
+                    command_message += " Succeed.";
+                else
+                    command_message += " Failed.";
+            }
+            if (command_parameter[0] === "delete" && command_parameter[1])
+            {
+                command_message = "Deletion";
+                if (categories.modify(command_parameter[1], ""))
+                    command_message += " Succeed.";
+                else
+                    command_message += " Failed.";
+            }
+        }
+        
+        const message_obj = new Message(command_parameter, "system", command_message);
+        response_div.render_message(message_obj.element);
+    }
+
+    lock()
+    {
+        this.$target.readOnly = true;
+        this.$target.classList.add("readOnly");
+    }
+
+    unlock()
+    {
+        this.$target.readOnly = false;
+        this.$target.classList.remove("readOnly");
+    }
+
+    focus()
+    {
+        var device_width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        if (device_width >= 800) this.$target.select();
+    }
+
+    send_message()
+    {
+        const prompt = this.$target.value.trim();
+        if (!API_KEY || prompt.length === 0) return;
+        if (prompt[0] === "/")
+        {
+            this.process_command(prompt);
+            this.$target.value = "";
+            this.focus();
+            return;
+        }
+        if (prompt.split(" ").length * 5 > 3072) 
+        {
+            alert("메시지가 너무 깁니다.");
+            return;
+        }
+
+        this.lock();
+        messages.push_message({role: "user", content: prompt});
+        this.$target.value = "추론중...";
+        messages.scrollIntoView();
+        messages.flush_if_too_many_tokens();
+
+        chatgpt_api([messages.system_message, ...messages.messages]).then(outputJson => {
+            console.log(outputJson);
+            messages.update_last_token(outputJson.usage.prompt_tokens);
+            messages.push_message({role: "assistant", content: outputJson.choices[0].message.content});
+            messages.update_last_token(outputJson.usage.completion_tokens);
+            
+            if (thread.title === "" && outputJson.usage.total_tokens > 150)
+                thread.make_title();
+            thread.save();
+            
+            console.log(outputJson.choices[0].message.content);
+            console.log(outputJson.usage.total_tokens);
+
+            if (outputJson.choices[0].finish_reason === "length") 
+            {
+                messages.push_message({role: "user", content: "continue"});
+                this.send_message();
+            }
+            else
+            {
+                this.$target.value = "";
+                this.unlock();
+                this.focus();
+                if (prompt !== "continue" || prompt.split(" ").length > 200) messages.scrollIntoView(1);
+            }
+        }).catch(e=>{
+            alert("API 에러 발생! 개발자 모드에서 에러 메시지를 확인하세요.");
+            console.log(e);
+            this.unlock();
+            this.focus();
+            this.$target.value = (messages.get_last_element()).value;
+            messages.delete_message(response_div.$target.lastChild);
+        });
+    
+    }
+    
+}
 
 class ResponseDiv{
     constructor($target)
@@ -262,118 +367,79 @@ class ResponseDiv{
         //현재 URI 파싱해서 로컬 스토리지에 있는 부분은 가져와서 렌더링 하는 코드 여기 추가. 
     }
     
-    async preprocess(content)
-    {
-        let processed = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        if (processed.split("```").length === 1)
-            return processed;
-        else
-        {
-            let result = "";
-            let splitted = processed.split("```");
-            for (var i=0; i < splitted.length - 1; i+=2)
-            {
-                let code_content = splitted[i+1].split("\n");
-                let language = code_content[0].trim();
-                code_content[0] = "";
-                if (language === "LaTeX")
-                    result += `${splitted[i]}$$\n${code_content.join("\n")}\n$$`;
-                else if (language === "")
-                {
-                    try{
-                        const message = [{role: "assistant", content: `${splitted[i]} \`\`\`${code_content.join("\n")}\`\`\` }`},
-                                         {role: "user", content: "What is the language of this code? Answer only in one word. If you can't find its language, just answer this word: plaintext."}];
-                        const outputJson = await chatgpt_api.api(message);
-                        language = outputJson.choices[0].message.content.trim().replace(".", ""); 
-                        console.log(language);
-                    }
-                    catch(e)
-                    {
-                        language = "plaintext";
-                    }
-                }
-                if (language in ["Bash", "C", "C#", "C++", "CSS", "Diff", "Go", "GraphQL", "HTML, XML", "JSON", "Java", "JavaScript", "Kotlin", "Less", "Lua", "Makefile", "Markdown", "Objective-C", "PHP", "PHPT", "Perl", "Python", "IPython", "R", "Ruby", "Rust", "SCSS", "SQL", "Shell", "Session", "Swift", "TOML", "INI", "TypeScript", "VB.NET", "WebAssembly", "YAML"] === false)
-                    language = "plaintext";
-                result += `${splitted[i]}<code class="language-${language}"><p class="block">\`\`\`</p>${code_content.join("\n")}<p class="block">\`\`\`</p></code>`;
-                // language를 얻어온 다음에 chatgpt_api.messages의 내용을 수정하는 코드가 필요.
-            }
-            if (splitted.length % 2) result += splitted[splitted.length-1];
 
-            return result;
+    remove(elem)
+    {
+        this.$target.removeChild(elem);
+    }
+
+    render_message(elem)
+    {
+        if (elem.content === "continue") return;
+
+        this.$target.appendChild(elem);
+        MathJax.typesetPromise().then(() => MathJax.typesetPromise()).catch((err) => console.log(err.message));
+    }
+}
+
+class Thread{
+    constructor()
+    {
+        this.title = "";
+        this.id = null;
+        const thread_id = (new URLSearchParams(window.location.search)).get('thread_id');
+        if (thread_id)
+        {
+            this.id = thread_id;
+            this.title = JSON.parse(localStorage.getItem(`thread_${thread_id}`)).title;
         }
     }
 
-    async update()
+    make_title()
     {
-        const new_prompt = document.createElement("div");
-    
-          new_prompt.classList.add("response_prompt");
-          new_prompt.setAttribute("timestamp", chatgpt_api.timestamps[chatgpt_api.messages.length-2]);
-          if (chatgpt_api.messages[chatgpt_api.messages.length-2].content !== "continue") 
-          {
-              this.$target.appendChild(new_prompt);
-              new_prompt.innerHTML = `<pre class="tex2jax_process">${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-2].content)}</pre><p>x</p>`;
-          }
-          else
-          {
-              chatgpt_api.delete_message(chatgpt_api.messages.length-2);
-          }
-          if (new_prompt.querySelector("code")) 
-                Array.from(new_prompt.querySelectorAll("pre > code")).forEach(elem => hljs.highlightElement(elem));
+        chatgpt_api([...messages.messages, 
+            {role:"user", content: "By the way, which title would be the best \
+that summarizes our conversation so far? Answer in less than five words. \
+If you can't summarize, you should answer this word: Untitled."
+            }]).then(outputJson => {
+                console.log(outputJson);
+                this.title = outputJson.choices[0].message.content.replace("Title: ", "");
+                // 스레드 테이블 보고 최댓값을 통해 현재 스레드가 가질 아이디 구하는 코드
+            }).catch(()=>{});
+    }
 
-          const new_response = document.createElement("div");
-
-          new_response.classList.add("response_response");
-          new_response.setAttribute("timestamp", chatgpt_api.timestamps[chatgpt_api.messages.length-1]);
-          this.$target.appendChild(new_response);
-          new_response.innerHTML = `<pre class="tex2jax_process">${await this.preprocess(chatgpt_api.messages[chatgpt_api.messages.length-1].content)}</pre><p>x</p>`;
-          if (new_response.querySelector("code")) 
-                Array.from(new_response.querySelectorAll("pre > code")).forEach(elem => hljs.highlightElement(elem));
-
-        MathJax.typesetPromise().then(() => MathJax.typesetPromise()).catch((err) => console.log(err.message));
-
+    save()
+    {
+        const thread_dict = {title: this.title, messages: messages.messages};
+        localStorage.setItem(`thread_${this.id}`, JSON.stringify(thread_dict));
     }
 }
 
 
-
+const messages = new Messages();
+const textarea = new Textarea(document.querySelector("div.prompt > textarea"));
 const response_div = new ResponseDiv(document.querySelector("div.response"));
+const categories = new Categories();
+const thread = new Thread();
+
 
 document.body.addEventListener("click", e=>{
     if (e.target.nodeName === "P")
-        chatgpt_api.delete(e.target.parentNode);
-});
-
-document.querySelector("div.prompt > input").addEventListener("click", ()=>{
-    if (document.querySelector("div.prompt > textarea").readOnly === false)
-        send_message(document.querySelector("div.prompt > textarea").value);
-});
+        messages.delete_message(e.target.parentNode);
+    if (e.target === document.querySelector("div.prompt > input") && document.querySelector("div.prompt > textarea").readOnly === false)
+        textarea.send_message();
 
 
-function send_message(prompt)
-{
-    document.querySelector("div.prompt > textarea").readOnly = true;
-    document.querySelector("div.prompt > textarea").classList.add("readOnly");
-    chatgpt_api.send(prompt).then( async (result) =>{
-        console.log(result);
-        if (result)
+    if (e.target === document.querySelector("div.title > button.categories"))
+        document.querySelector("div.categories").classList.toggle("hide");
+
+    if (e.target == document.querySelector("div.API_KEY > input[type='submit']"))
+    {
+        const API_KEY_candidate = document.querySelector("div.API_KEY > input[type='text']").value;
+        if (API_KEY_candidate.length > 10)
         {
-            await response_div.update();
-            document.querySelector("div.prompt > textarea").value = ""; 
+            localStorage.setItem("API_KEY", API_KEY_candidate);
+            document.querySelector("div.API_KEY").classList.add("hide");        
         }
-        document.querySelector("div.prompt > textarea").readOnly = false;
-        document.querySelector("div.prompt > textarea").classList.remove("readOnly");
-        var device_width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        if (device_width >= 800) document.getElementById("prompt").select();
-        if (result === "length") send_message("continue");
-        else if (document.querySelectorAll("div.response > *").length > 1)
-        {
-            for (var i=0; i<document.querySelectorAll("div.response > *").length; i++)
-                if (chatgpt_api.messages[chatgpt_api.messages.length-i-1].role === "user")
-                {
-                    document.querySelectorAll("div.response > *")[document.querySelectorAll("div.response > *").length - i - 1].scrollIntoView({ behavior: 'smooth' });
-                    break;
-                }
-        }
-    });
-}
+    }
+});
