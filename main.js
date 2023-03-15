@@ -4,6 +4,9 @@ if (API_KEY && API_KEY !== "null") document.querySelector("div.API_KEY").classLi
 let model = localStorage.getItem("model");
 if (!model || model === "null") localStorage.setItem("model", "gpt-3.5-turbo");
 
+let max_token = localStorage.getItem("max_token");
+if (!max_token || max_token === "null") localStorage.setItem("max_token", "4096");
+
 document.getElementById("prompt").select();
 document.querySelector("div.categories").classList.add("hide");
 
@@ -11,7 +14,7 @@ document.querySelector("div.categories").classList.add("hide");
 class Categories{
     constructor()
     {
-        this.categories = localStorage.getItem("categories");
+        this.categories = JSON.parse(localStorage.getItem("categories"));
         if (! this.categories) this.categories = [];
     }
 
@@ -104,33 +107,36 @@ class Message{
 
     make_element(message, class_name, system_message="")
     {
-        if (system_message !== "")
-            message = `${system_message}: "${message}"`;
 
         const new_element = document.createElement("div");
         new_element.setAttribute("timestamp", this.timestamp);
         new_element.classList.add(class_name);
 
-        let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
         let result = "";
-
-        for (var i=0; i < splitted.length - 1; i+=2)
+        
+        if (system_message !== "")
+            result = `${this.process_inline(system_message)} "${message}"`;
+        else
         {
-            let code_content = splitted[i+1].split("\n");
-            let language = code_content[0].trim();
-            let result_inline = this.process_inline(splitted[i]);
-            code_content.shift();
-
-            if (language === "LaTeX")
-                result += `${result_inline}$$\n${code_content.join("\n")}\n$$`;
-            else
+            let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
+            for (var i=0; i < splitted.length - 1; i+=2)
             {
-                if (language === "")
-                    language = "plaintext";
-                result += `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
+                let code_content = splitted[i+1].split("\n");
+                let language = code_content[0].trim();
+                let result_inline = this.process_inline(splitted[i]);
+                code_content.shift();
+    
+                if (language === "LaTeX")
+                    result += `${result_inline}$$\n${code_content.join("\n")}\n$$`;
+                else
+                {
+                    if (language === "")
+                        language = "plaintext";
+                    result += `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
+                }
             }
+            if (splitted.length % 2) result += this.process_inline(splitted[splitted.length-1]);    
         }
-        if (splitted.length % 2) result += this.process_inline(splitted[splitted.length-1]);
 
 
         new_element.innerHTML = `<pre class="tex2jax_process">${result}</pre><p>x</p>`;
@@ -166,22 +172,32 @@ class Messages{
     flush_if_too_many_tokens()
     {
         let cutIndex = 0, now_count = 0;
+        const token_sum = this.sum_of_tokens() + this.message_objects[this.message_objects.length-1].token;
+        const bucket_size = parseInt(localStorage.getItem("max_token")) - 1024;
 
-        console.log(this.messages.length, this.message_objects.length);
+        if (token_sum < bucket_size) return;
+    
+        /*
+
+        gpt-3.5-turbo는 최대 4096개의 토큰을 반환하므로, 예를 들어 입력 토큰 개수가 3000개가 넘어가면 답변 길이가 1000토큰 이하로 줄어든다.
+        이러면 기대한 답변을 얻기 어려울 수 있으므로 이런 상황에 대비해 미리미리 토큰을 비워줘야 한다. 
+
+        */
+
         for (var i=0; i<this.messages.length; i++)
         {
             if (this.message_objects.length >= i)
                 now_count += this.message_objects[i].token;
-            if (now_count > 1024 && cutIndex === 0) 
+            if (now_count > token_sum - bucket_size)
+            {
                 cutIndex = i;
+                break;
+            }
         }
-        
-        if (now_count > 3072) //이거보다 더 길면 응답 메시지가 너무 짧아지므로 flush
-        {
-            if (cutIndex === this.messages.length-1) cutIndex--;
-            this.messages = this.messages.slice(cutIndex, this.messages.length);
-            this.message_objects = this.message_objects.slice(cutIndex, this.message_objects.length);
-        }
+
+        if (cutIndex === this.messages.length-1) cutIndex--;
+        this.messages = this.messages.slice(cutIndex, this.messages.length);
+        this.message_objects = this.message_objects.slice(cutIndex, this.message_objects.length);
     }
 
     delete_message(elem)
@@ -210,6 +226,14 @@ class Messages{
     get_last_element()
     {
         return this.messages[this.messages.length-1].content;                
+    }
+
+    sum_of_tokens()
+    {
+        let count = 0;
+        for (var i=0; i < this.messages.length-1; i++)
+            count += this.message_objects[i].token;
+        return count;
     }
 }
 
@@ -243,8 +267,16 @@ class Textarea{
         
         if (command === "/system" && command_parameter)
         {
-            command_message = "System message changed";
-            messages.set_system_message(command_parameter);
+            if (splitted[1] === "--show")
+            {
+                command_message = "Current system message";
+                command_parameter = messages.system_message.content;
+            }
+            else
+            {
+                command_message = "System message changed";
+                messages.set_system_message(command_parameter);
+            }
         }
         if (command === "/api_key" && command_parameter)
         {
@@ -282,12 +314,39 @@ class Textarea{
         }
         if (command == "/model" && command_parameter)
         {
-            command_message = "Model changed";
-            localStorage.setItem("model", command_parameter);
+            if (splitted[1] === "--show")
+            {
+                command_message = "Current model";
+                command_parameter = localStorage.getItem("model");
+            }
+            else
+            {
+                command_message = "Model changed";
+                localStorage.setItem("model", command_parameter);
+           }
+        }
+        if (command == "/max_token" && command_parameter)
+        {
+            if (splitted[1] === "--show")
+            {
+                command_message = "Current maximum token you receive";
+                command_parameter = localStorage.getItem("max_token");
+            }
+            else 
+            {
+                if(parseInt(command_parameter))
+                {
+                    command_message = "Maximum token you recieve changed";
+                    localStorage.setItem("max_token", command_parameter);
+                }
+                else
+                    command_message = "Maximum token change failed"    
+            }
         }
         
         const message_obj = new Message(command_parameter, "system", command_message);
         response_div.render_message(message_obj.element);
+        message_obj.element.scrollIntoView({behavior: "smooth"});
     }
 
     lock()
@@ -327,16 +386,15 @@ class Textarea{
 
         this.lock();
         messages.push_message({role: "user", content: prompt});
-        this.$target.value = "추론중...";
+        this.$target.value = "Generating...";
         messages.scrollIntoView();
         messages.flush_if_too_many_tokens();
 
-        chatgpt_api([messages.system_message, ...messages.messages]).then(outputJson => {
+        chatgpt_api([messages.system_message, ...messages.messages]).then( outputJson => {
             console.log(outputJson);
-            messages.update_last_token(outputJson.usage.prompt_tokens);
+            messages.update_last_token(outputJson.usage.prompt_tokens - messages.sum_of_tokens());
             messages.push_message({role: "assistant", content: outputJson.choices[0].message.content});
             messages.update_last_token(outputJson.usage.completion_tokens);
-            console.log(messages.message_objects);
             
             if (thread.title === "" && outputJson.usage.total_tokens > 150)
                 thread.make_title();
@@ -397,12 +455,7 @@ class Thread{
     {
         this.title = "";
         this.id = null;
-        const thread_id = (new URLSearchParams(window.location.search)).get('thread_id');
-        if (thread_id)
-        {
-            this.id = thread_id;
-            this.title = JSON.parse(localStorage.getItem(`thread_${thread_id}`)).title;
-        }
+        this.category_id = null;
     }
 
     make_title()
@@ -412,15 +465,42 @@ class Thread{
 that summarizes our conversation so far? Answer in less than five words. \
 If you can't summarize, you should answer this word: Untitled."
             }]).then(outputJson => {
+                this.title = outputJson.choices[0].message.content.replace("Title: ", "").trim().replace(/"/g, "");
+                console.log(this.title);
+
+                this.id = parseInt(localStorage.getItem("thread_num"));
+                if (!this.id || this.id === "null") this.id = 0;
+                localStorage.setItem("thread_num", this.id+1);
+
+                this.save();
+            }).catch(e=>{console.log(e)});
+
+
+        let categories_list = [];
+        //categories.categories.forEach(elem => {categories_list.push(localStorage.getItem(`category_${elem}`).name)});
+        chatgpt_api([...messages.messages, 
+            {role:"user", content: `By the way, which category would be the best \
+if you put the summary our conversation so far into it? Answer between these categories: ${JSON.stringify(categories_list)} \
+If you can't put, you should answer this word: ETC.`
+            }]).then(outputJson => {
                 console.log(outputJson);
-                this.title = outputJson.choices[0].message.content.replace("Title: ", "");
-                // 스레드 테이블 보고 최댓값을 통해 현재 스레드가 가질 아이디 구하는 코드
-            }).catch(()=>{});
+
+                /*categories_list.forEach((e, i) => {
+                    if (output === e)
+                    {
+                        let temp = JSON.parse(localStorage.getItem(`category_${i}`));
+                        temp.push();
+                    }
+                });*/
+                // 그 단어에 해당하는 카테고리에 삽입.. 
+
+                this.save();
+            }).catch(e=>{console.log(e)});
     }
 
     save()
     {
-        const thread_dict = {title: this.title, messages: messages.messages};
+        const thread_dict = {title: this.title, messages: messages.messages, category_id: this.category_id};
         localStorage.setItem(`thread_${this.id}`, JSON.stringify(thread_dict));
     }
 }
