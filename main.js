@@ -180,9 +180,7 @@ class Messages{
         {
             if (cutIndex === this.messages.length-1) cutIndex--;
             this.messages = this.messages.slice(cutIndex, this.messages.length);
-            this.message_objects = this.message_objects.slice(cutIndex, this.messages.length);
-
-            console.log(this.messages.length, this.message_objects.length);
+            this.message_objects = this.message_objects.slice(cutIndex, this.message_objects.length);
         }
     }
 
