@@ -167,9 +167,11 @@ class Messages{
     {
         let cutIndex = 0, now_count = 0;
 
+        console.log(this.messages.length, this.message_objects.length);
         for (var i=0; i<this.messages.length; i++)
         {
-            now_count += this.message_objects[i].token;
+            if (this.message_objects.length >= i)
+                now_count += this.message_objects[i].token;
             if (now_count > 1024 && cutIndex === 0) 
                 cutIndex = i;
         }
@@ -179,6 +181,8 @@ class Messages{
             if (cutIndex === this.messages.length-1) cutIndex--;
             this.messages = this.messages.slice(cutIndex, this.messages.length);
             this.message_objects = this.message_objects.slice(cutIndex, this.messages.length);
+
+            console.log(this.messages.length, this.message_objects.length);
         }
     }
 
