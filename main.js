@@ -336,6 +336,7 @@ class Textarea{
             messages.update_last_token(outputJson.usage.prompt_tokens);
             messages.push_message({role: "assistant", content: outputJson.choices[0].message.content});
             messages.update_last_token(outputJson.usage.completion_tokens);
+            console.log(messages.message_objects);
             
             if (thread.title === "" && outputJson.usage.total_tokens > 150)
                 thread.make_title();
