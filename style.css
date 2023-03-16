@@ -172,3 +172,24 @@ span {
     display: inline-block;
     width: fit-content;
 }
+
+
+div.categories{
+    flex-direction: column;
+}
+
+div.categories_title{
+    height: 10%;
+    width: 100%;
+    border-bottom: 1px solid #aaa;
+}
+
+div.categories_content{
+    height: 90%;
+    width: 100%;
+}
+
+div.category_icon{
+    height: 100px;
+    width: 100px;
+}
