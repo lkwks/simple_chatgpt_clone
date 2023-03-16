@@ -12,8 +12,9 @@ document.querySelector("div.categories").classList.add("hide");
 
 
 class Categories{
-    constructor()
+    constructor($target)
     {
+        this.$target = $target;
         this.categories = JSON.parse(localStorage.getItem("categories"));
         if (! this.categories) this.categories = [];
     }
@@ -44,6 +45,7 @@ class Categories{
     show_category_list()
     {
         this.$target.querySelector("div.categories_title").innerText = "Categories";
+        this.$target.querySelector("div.categories_content").innerHTML = "";
 
         this.categories.forEach( (elem, i) => {
             if (elem)
@@ -85,6 +87,9 @@ class Categories{
 
     4. 카테고리 목록에서 카테고리를 누르면 타래 목록이 뜬다. 각 타래는 아이콘 모양이고, x버튼이 귀퉁이에 있어 삭제가 쉽다. 
     - 이거 구현이 귀찮은데... 
+
+    카테고리 아이콘 클릭 시 스레드 목록 나오게 만들어야됨
+    
     */
 }
 
@@ -115,7 +120,7 @@ class Message{
         let result = "";
         
         if (system_message !== "")
-            result = `${this.process_inline(system_message)} "${message}"`;
+            result = `${this.process_inline(`\`${system_message}\``)} "${message}"`;
         else
         {
             let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
@@ -311,6 +316,8 @@ class Textarea{
                 else
                     command_message += " Failed.";
             }
+            command_parameter.shift();
+            command_parameter = command_parameter.join(" ");
         }
         if (command == "/model" && command_parameter)
         {
@@ -509,7 +516,7 @@ If you can't put, you should answer this word: ETC.`
 const messages = new Messages();
 const textarea = new Textarea(document.querySelector("div.prompt > textarea"));
 const response_div = new ResponseDiv(document.querySelector("div.response"));
-const categories = new Categories();
+const categories = new Categories(document.querySelector("div.categories"));
 const thread = new Thread();
 
 
@@ -521,7 +528,11 @@ document.body.addEventListener("click", e=>{
 
 
     if (e.target === document.querySelector("div.title > button.categories"))
+    {
         document.querySelector("div.categories").classList.toggle("hide");
+        if (document.querySelector("div.categories").classList.contains("hide") === false)
+            categories.show_category_list();
+    }
 
     if (e.target == document.querySelector("div.API_KEY > input[type='submit']"))
     {
