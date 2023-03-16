@@ -1,5 +1,3 @@
-<meta charset="UTF-8">
+## Motive
 
-## 구현 동기
-
-트위터에서 파이썬에서 API로 챗지피티 구현한 거 보고 가벼운 마음으로 개발시도해봄. 
+I saw an example of an implementation of a very simple ChatGPT clone on Twitter and I thought I could make it too and I started it.
