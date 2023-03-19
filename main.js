@@ -1,22 +1,22 @@
 let API_KEY = localStorage.getItem("API_KEY");
 if (API_KEY && API_KEY !== "null") document.querySelector("div.API_KEY").classList.add("hide");
 
-let model = localStorage.getItem("model");
-if (!model || model === "null") localStorage.setItem("model", "gpt-3.5-turbo");
-
-let max_token = localStorage.getItem("max_token");
-if (!max_token || max_token === "null") localStorage.setItem("max_token", "4096");
-
 document.getElementById("prompt").select();
 document.querySelector("div.categories").classList.add("hide");
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }  
 
 class Categories{
     constructor($target)
     {
         this.$target = $target;
         this.categories = JSON.parse(localStorage.getItem("categories"));
-        if (! this.categories) this.categories = [];
+        this.threads = JSON.parse(localStorage.getItem("threads"));
+        if (! this.categories) this.categories = ["ETC"];
+        if (! this.threads) this.threads = [];
+        this.show_category_list(-1);
     }
 
 
@@ -41,56 +41,65 @@ class Categories{
         return false;
     }
 
-
-    show_category_list()
+    add_this_thread()
     {
-        this.$target.querySelector("div.categories_title").innerText = "Categories";
+        this.threads.push({category_id: thread.category_id, title: thread.title});
+        localStorage.setItem("threads", JSON.stringify(this.threads));
+        localStorage.setItem(`thread_${thread.id}`, localStorage.getItem("thread_temp"));
+    }
+
+    render_icon(type, elem, i, clicked_id)
+    {
+        const div = document.createElement("div");
+        div.classList.add(`${type}_icon`);
+        div.setAttribute(`${type}_id`, i);
+        div.innerHTML = `${elem}<p>x</p>`;
+        if (parseInt(clicked_id) === parseInt(i))
+            div.classList.add("clicked");
+        return div;
+    }
+
+    delete_thread_icon(elem)
+    {
+        document.querySelector("div.categories_content").removeChild(elem);
+        let thread_id = parseInt(elem.getAttribute("thread_id"));
+        localStorage.setItem(`thread_${thread_id}`, "");
+        this.threads[thread_id] = null;
+        localStorage.setItem("threads", JSON.stringify(this.threads));
+    }
+
+    show_category_list(clicked_id)
+    {
+        this.$target.querySelector("div.categories_title").innerHTML = "";
+
+        this.$target.querySelector("div.categories_title").appendChild(this.render_icon("category", "All", -1, clicked_id));
+        this.categories.forEach( (elem, i) => {
+            if (elem) //null인 경우 있음
+            {
+                const div = this.render_icon("category", elem, i, clicked_id);
+                this.$target.querySelector("div.categories_title").appendChild(div);
+            }
+        });
+
+        this.show_threads(clicked_id);
+    }
+
+    show_threads(category_id)
+    {
         this.$target.querySelector("div.categories_content").innerHTML = "";
 
-        this.categories.forEach( (elem, i) => {
-            if (elem)
-            {
-                const div = document.createElement("div");
-                div.classList.add("category_icon");
-                div.setAttribute("category_id", i);
-                div.innerText = elem;
-                this.$target.querySelector("div.categories_content").appendChild(div);
-            }
+        this.threads.forEach((elem, i) => {
+            if (elem && (parseInt(elem.category_id) === parseInt(category_id) || parseInt(category_id) === -1))
+                this.$target.querySelector("div.categories_content").appendChild(this.render_icon("thread", elem.title, i));
         });
     }
 
-    move_category(category_id)
+    load_thread(thread_id)
     {
-        this.$target.querySelector("div.categories_title").innerText = this.categories[category_id];
-        const child = JSON.parse(localStorage.getItem(`category_${category_id}`));
+        document.querySelector("div.categories").classList.toggle("hide");
+        thread.load_thread(thread_id);
+    }
 
-        child.forEach( elem => {
-            if (elem)
-            {
-                const div = document.createElement("div");
-                div.classList.add("thread_icon");
-                div.setAttribute("thread_id", elem.id);
-                div.innerHTML = `${elem.title}<p>x</p>`;
-                this.$target.querySelector("div.categories_content").appendChild(div);
-            }
-        });
-    }        
-
-    /*
-    1. 대화 내용이 조금 길어진다 싶으면(500토큰 이상) 다음 처리를 한다.
-    - 넘어온 페이지에서는, URI에 해당하는 로컬 스토리지 내용을 긁어와 렌더링을 수행한다. messagges, messages_token, timestamps도 다 담는다.
-
-    3. 구현을 위해 고려할 로컬 스토리지 구조
-    - 카테고리 목록: `categories`. 카테고리명이 키고 그에 대한 URI 값이 딕셔너리로 저장돼있음. (카테고리 생성된 순서대로 숫자 매겨서.)
-    - 각 카테고리에 있는 타래들 URI의 목록이 담긴 키값: `category_[카테고리 URI값]`. 배열이고, 각 인덱스마다 {URI:"", 제목:""}이 들어있음.
-    - 각 타래의 내용이 담긴 키값: `thread_[타래 URI값]`. {messages:[], messages_token:[], timestamps:[]}가 다 있음. 
-
-    4. 카테고리 목록에서 카테고리를 누르면 타래 목록이 뜬다. 각 타래는 아이콘 모양이고, x버튼이 귀퉁이에 있어 삭제가 쉽다. 
-    - 이거 구현이 귀찮은데... 
-
-    카테고리 아이콘 클릭 시 스레드 목록 나오게 만들어야됨
-    
-    */
 }
 
 class Message{
@@ -155,18 +164,39 @@ class Message{
 class Messages{
     constructor()
     {
-        this.messages = [{role: "user", content: ""}];
-        this.message_objects = [new Message("", "user")];
-        this.system_message = {role: "system", content: ""};
+        this.messages = [];
+        this.message_objects = [];
+        this.system_message = {};
+        this.reset();
     }
 
-    push_message(elem)
+    reset()
+    {
+        let model = localStorage.getItem("model");
+        if (!model || model === "null") localStorage.setItem("model", "gpt-3.5-turbo");
+        
+        let max_token = localStorage.getItem("max_token");
+        if (!max_token || max_token === "null") localStorage.setItem("max_token", "4096");
+
+        document.querySelector("div.response").innerHTML = "";
+                
+        localStorage.setItem("thread_temp", "[]");
+        this.messages = [{role: "user", content: ""}];
+        this.message_objects = [new Message("", "user")];
+        this.system_message = {role: "system", content: "If your answer have code blocks, you should specify their language in them."};
+    }
+
+    push_message(elem, reload_mode=false)
     {
         elem.content = elem.content.trim();
         this.message_objects.push(new Message(elem.content, elem.role));
         this.messages.push(elem);
+        if (reload_mode === false) thread.push(elem);
         let k = this.message_objects[this.message_objects.length-1].element;
         response_div.render_message(k);
+
+        if (elem.role === "user")
+            this.flush_if_too_many_tokens();
     }
 
     set_system_message(prompt)
@@ -209,7 +239,7 @@ class Messages{
     {
         response_div.remove(elem);
         for (var i=0; i<this.messages.length; i++)
-            if (parseInt(this.message_objects[i]) === parseInt(elem.getAttribute("timestamp")))
+            if (parseInt(this.message_objects[i].timestamp) === parseInt(elem.getAttribute("timestamp")))
             {
                 this.messages.splice(i, 1);
                 this.message_objects.splice(i, 1);
@@ -395,7 +425,6 @@ class Textarea{
         messages.push_message({role: "user", content: prompt});
         this.$target.value = "Generating...";
         messages.scrollIntoView();
-        messages.flush_if_too_many_tokens();
 
         chatgpt_api([messages.system_message, ...messages.messages]).then( outputJson => {
             console.log(outputJson);
@@ -403,9 +432,8 @@ class Textarea{
             messages.push_message({role: "assistant", content: outputJson.choices[0].message.content});
             messages.update_last_token(outputJson.usage.completion_tokens);
             
-            if (thread.title === "" && outputJson.usage.total_tokens > 150)
+            if (thread.id === null && outputJson.usage.total_tokens > 100)
                 thread.make_title();
-            thread.save();
             
             console.log(outputJson.choices[0].message.content);
             console.log(outputJson.usage.total_tokens);
@@ -439,9 +467,7 @@ class ResponseDiv{
     constructor($target)
     {
         this.$target = $target;
-        //현재 URI 파싱해서 로컬 스토리지에 있는 부분은 가져와서 렌더링 하는 코드 여기 추가. 
     }
-    
 
     remove(elem)
     {
@@ -465,51 +491,65 @@ class Thread{
         this.category_id = null;
     }
 
-    make_title()
+    async make_title()
     {
-        chatgpt_api([...messages.messages, 
+        await chatgpt_api([...messages.messages, 
             {role:"user", content: "By the way, which title would be the best \
-that summarizes our conversation so far? Answer in less than five words. \
-If you can't summarize, you should answer this word: Untitled."
+that summarizes our conversation so far? Answer in less than five words, in the language you used."
             }]).then(outputJson => {
-                this.title = outputJson.choices[0].message.content.replace("Title: ", "").trim().replace(/"/g, "");
-                console.log(this.title);
-
-                this.id = parseInt(localStorage.getItem("thread_num"));
-                if (!this.id || this.id === "null") this.id = 0;
-                localStorage.setItem("thread_num", this.id+1);
-
-                this.save();
+                console.log(outputJson.choices[0].message.content);
+                this.title = outputJson.choices[0].message.content.split(" (")[0].replace("Title: ", "").trim().replace(/"/g, "");
             }).catch(e=>{console.log(e)});
 
-
-        let categories_list = [];
-        //categories.categories.forEach(elem => {categories_list.push(localStorage.getItem(`category_${elem}`).name)});
-        chatgpt_api([...messages.messages, 
+        const filteredArr = categories.categories.filter(el => el !== "");
+        await chatgpt_api([...messages.messages, 
             {role:"user", content: `By the way, which category would be the best \
-if you put the summary our conversation so far into it? Answer between these categories: ${JSON.stringify(categories_list)} \
-If you can't put, you should answer this word: ETC.`
+if you put the summary our conversation so far into it? \
+I'll give you a JS array: ${filteredArr} \
+You should answer in this format: "The index of the category: [[number]]"`
             }]).then(outputJson => {
-                console.log(outputJson);
+                console.log(outputJson.choices[0].message.content);
 
-                /*categories_list.forEach((e, i) => {
-                    if (output === e)
+                this.id = categories.threads.length;
+
+                let output_index = outputJson.choices[0].message.content.split("The index of the category: ")[1].replace(`"`, "").split(" ")[0];
+                this.category_id = 0;
+                if (isNaN(output_index) === false)
+                    categories.categories.forEach((elem, i) =>
                     {
-                        let temp = JSON.parse(localStorage.getItem(`category_${i}`));
-                        temp.push();
-                    }
-                });*/
-                // 그 단어에 해당하는 카테고리에 삽입.. 
+                        if (elem === filteredArr[parseInt(output_index)])
+                            this.category_id = i;
+                    });
 
-                this.save();
+                categories.add_this_thread();
             }).catch(e=>{console.log(e)});
     }
 
-    save()
+
+    // 스레드 이동했을 때 싹 비우고 로컬 스토리지에 있었던 메시지를 하나씩 불러오는 코드
+    async load_thread(thread_id)
     {
-        const thread_dict = {title: this.title, messages: messages.messages, category_id: this.category_id};
-        localStorage.setItem(`thread_${this.id}`, JSON.stringify(thread_dict));
+        messages.reset();
+
+        const thread_temp = JSON.parse(localStorage.getItem(`thread_${thread_id}`));
+        this.id = thread_id;
+        for (var elem of thread_temp)
+        {
+            messages.push_message(elem, true);
+            await sleep(10);
+        }
     }
+
+    // localStorage의 thread_{num}을 계속 업데이트 하는 코드
+    push(elem)
+    {
+        let thread_id = this.id ? `thread_${this.id}` : "thread_temp";
+        let thread_temp = JSON.parse(localStorage.getItem(thread_id));
+        if (thread_temp) thread_temp.push(elem);
+        else thread_temp = [elem];
+        localStorage.setItem(thread_id, JSON.stringify(thread_temp));
+    }
+
 }
 
 
@@ -521,18 +561,13 @@ const thread = new Thread();
 
 
 document.body.addEventListener("click", e=>{
-    if (e.target.nodeName === "P")
+    if (e.target.nodeName === "P" && e.target.parentNode.parentNode.classList.contains("response"))
         messages.delete_message(e.target.parentNode);
     if (e.target === document.querySelector("div.prompt > input") && document.querySelector("div.prompt > textarea").readOnly === false)
         textarea.send_message();
 
-
     if (e.target === document.querySelector("div.title > button.categories"))
-    {
         document.querySelector("div.categories").classList.toggle("hide");
-        if (document.querySelector("div.categories").classList.contains("hide") === false)
-            categories.show_category_list();
-    }
 
     if (e.target == document.querySelector("div.API_KEY > input[type='submit']"))
     {
@@ -543,4 +578,12 @@ document.body.addEventListener("click", e=>{
             document.querySelector("div.API_KEY").classList.add("hide");        
         }
     }
+
+    if (e.target.nodeName === "P" && e.target.parentNode.classList.contains("thread_icon"))
+        categories.delete_thread_icon(e.target.parentNode);
+
+    if (e.target.classList.contains("category_icon"))
+        categories.show_category_list(e.target.getAttribute("category_id"));
+    if (e.target.classList.contains("thread_icon"))
+        categories.load_thread(e.target.getAttribute("thread_id"));
 });
