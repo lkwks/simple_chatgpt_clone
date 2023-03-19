@@ -22,7 +22,9 @@
   
   - Delete: `/category delete [name]`
   
-- System message(*This is a direction message to ChatGPT. It will be provided to ChatGPT API at every turn) feature
+- System message feature
+
+  - The system message is a direction message to ChatGPT. It will be provided to ChatGPT API at every turn.
 
   - Show: `/system --show`
   
@@ -36,10 +38,10 @@
 
   - Show: `/model --show`
   
-  - Change: `/model [new model name]`
+  - Change: `/model [new model name]`. You can see the list of models that can be replaced in this link: <https://platform.openai.com/docs/models/overview>
   
 - Max token number feature
 
   - Show: `/max_token --show`
   
-  - Change: `/max_token [new number]`
+  - Change: `/max_token [new number]`. Note that the API will return an error message if it is too high. You can see the list of possible token numbers that can be replaced in this link: <https://platform.openai.com/docs/models/overview>
