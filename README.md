@@ -45,3 +45,7 @@
   - Show: `/max_token --show`
   
   - Change: `/max_token [new number]`. Note that the API will return an error message if it is too high. You can see the list of possible token numbers that can be replaced in this link: <https://platform.openai.com/docs/models/overview>
+  
+- Number of tokens that is sent to the API
+
+  - `/t`
