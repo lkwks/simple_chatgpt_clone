@@ -207,7 +207,7 @@ class Messages{
     flush_if_too_many_tokens()
     {
         let cutIndex = 0, now_count = 0;
-        const token_sum = this.sum_of_tokens() + this.message_objects[this.message_objects.length-1].token;
+        const token_sum = this.sum_of_tokens(0);
         const bucket_size = parseInt(localStorage.getItem("max_token")) - 1024;
 
         if (token_sum < bucket_size) return;
@@ -263,10 +263,10 @@ class Messages{
         return this.messages[this.messages.length-1].content;                
     }
 
-    sum_of_tokens()
+    sum_of_tokens(minus_num=1)
     {
         let count = 0;
-        for (var i=0; i < this.messages.length-1; i++)
+        for (var i=0; i < this.messages.length-minus_num; i++)
             count += this.message_objects[i].token;
         return count;
     }
@@ -379,6 +379,11 @@ class Textarea{
                 else
                     command_message = "Maximum token change failed"    
             }
+        }
+        if (command == "/t")
+        {
+            command_message = "The number of tokens that is sent to the API";
+            command_parameter = messages.sum_of_tokens(0);
         }
         
         const message_obj = new Message(command_parameter, "system", command_message);
