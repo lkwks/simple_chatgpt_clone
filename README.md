@@ -10,6 +10,8 @@
 
 - Threads are automatically saved in each category. (ChatGPT classifies them.)
 
+- You can change the system message, categories, model, max token number.
+
 ## How to use
 
 - Category feature
