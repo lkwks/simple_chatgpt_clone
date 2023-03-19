@@ -207,15 +207,24 @@ div.category_icon{
     margin: 5px;
 }
 
+div.category_icon::hover{
+    background-color: #ee;
+}
+
 div.thread_icon{
     height: 100px;
     width: 100px;
-    border: 1px solid black;
     margin: 5px;
     padding: 5px;
     align-items: center;
     justify-content: center;
     position: relative;
+    background-color: #eee;
+    color: #555;
+}
+
+div.thread_icon::hover{
+    background-color: #ddd;
 }
 
 .clicked{
