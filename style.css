@@ -230,3 +230,7 @@ div.thread_icon:hover{
 .clicked{
     border: 1px solid red !important;
 }
+
+div.category_icon.clicked:hover{
+    background-color: transparent;
+}
