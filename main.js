@@ -302,7 +302,7 @@ class Textarea{
         
         if (command === "/system" && command_parameter)
         {
-            if (splitted[1] === "--show")
+            if (splitted[0] === "--show")
             {
                 command_message = "Current system message";
                 command_parameter = messages.system_message.content;
@@ -351,7 +351,7 @@ class Textarea{
         }
         if (command == "/model" && command_parameter)
         {
-            if (splitted[1] === "--show")
+            if (splitted[0] === "--show")
             {
                 command_message = "Current model";
                 command_parameter = localStorage.getItem("model");
@@ -364,7 +364,7 @@ class Textarea{
         }
         if (command == "/max_token" && command_parameter)
         {
-            if (splitted[1] === "--show")
+            if (splitted[0] === "--show")
             {
                 command_message = "Current maximum token you receive";
                 command_parameter = localStorage.getItem("max_token");
