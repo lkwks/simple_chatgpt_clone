@@ -207,7 +207,7 @@ div.category_icon{
     margin: 5px;
 }
 
-div.category_icon::hover{
+div.category_icon:hover{
     background-color: #ee;
 }
 
@@ -223,7 +223,7 @@ div.thread_icon{
     color: #555;
 }
 
-div.thread_icon::hover{
+div.thread_icon:hover{
     background-color: #ddd;
 }
 
