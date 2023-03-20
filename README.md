@@ -49,3 +49,7 @@
 - Number of tokens that is sent to the API
 
   - `/t`
+
+- Send a "continue" message
+
+  - `/c`
