@@ -179,7 +179,7 @@ div.categories{
 }
 
 div.categories_title{
-    height: 10%;
+    min-height: 10%;
     width: 100%;
     border-bottom: 1px solid #aaa;
     flex-direction: row;
@@ -187,7 +187,7 @@ div.categories_title{
 }
 
 div.categories_wrapper{
-    height: 90%;
+    max-height: 90%;
     width: 100%;
     overflow-y: auto;
 }
