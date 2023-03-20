@@ -179,7 +179,8 @@ div.categories{
 }
 
 div.categories_title{
-    min-height: 10%;
+    height: 10%;
+    max-height: 100%;
     width: 100%;
     border-bottom: 1px solid #aaa;
     flex-direction: row;
@@ -187,7 +188,8 @@ div.categories_title{
 }
 
 div.categories_wrapper{
-    max-height: 90%;
+    height: 90%;
+    min-height: 50%;
     width: 100%;
     overflow-y: auto;
 }
@@ -233,4 +235,9 @@ div.thread_icon:hover{
 
 div.category_icon.clicked:hover{
     background-color: transparent;
+}
+
+
+div.thread_title{
+    width: 50%;
 }
