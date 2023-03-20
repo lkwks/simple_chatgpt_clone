@@ -548,7 +548,7 @@ You should answer in this format: "The index of the category: [[number]]"`
     // localStorage의 thread_{num}을 계속 업데이트 하는 코드
     push(elem)
     {
-        let thread_id = this.id ? `thread_${this.id}` : "thread_temp";
+        let thread_id = (this.id || this.id === 0) ? `thread_${this.id}` : "thread_temp";
         let thread_temp = JSON.parse(localStorage.getItem(thread_id));
         if (thread_temp) thread_temp.push(elem);
         else thread_temp = [elem];
