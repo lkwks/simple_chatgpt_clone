@@ -415,10 +415,15 @@ class Textarea{
         if (!API_KEY || prompt.length === 0) return;
         if (prompt[0] === "/")
         {
-            this.process_command(prompt);
-            this.$target.value = "";
-            this.focus();
-            return;
+            if (prompt !== "/c")
+            {
+                this.process_command(prompt);
+                this.$target.value = "";
+                this.focus();
+                return;
+            }
+            else
+                prompt = "continue";
         }
         if (prompt.split(" ").length * 5 > 3072) 
         {
@@ -504,6 +509,7 @@ that summarizes our conversation so far? Answer in less than five words, in the 
             }]).then(outputJson => {
                 console.log(outputJson.choices[0].message.content);
                 this.title = outputJson.choices[0].message.content.split(" (")[0].replace("Title: ", "").trim().replace(/"/g, "");
+                document.querySelector("div.thread_title").innerText = this.title;
             }).catch(e=>{console.log(e)});
 
         const filteredArr = categories.categories.filter(el => el !== "");
