@@ -97,6 +97,7 @@ class Categories{
     load_thread(thread_id)
     {
         document.querySelector("div.categories").classList.toggle("hide");
+        document.querySelector("div.thread_title").innerText = this.threads[parseInt(thread_id)].title;
         thread.load_thread(thread_id);
     }
 
