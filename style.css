@@ -237,10 +237,14 @@ div.category_icon.clicked:hover{
     background-color: transparent;
 }
 
+div.title_wrapper{
+    width:70%;
+}
 
 div.thread_title{
     width: 50%;
     color: #555;
     overflow: hidden;
-    word-break: keep-all;
+    white-space: nowrap;
+    justify-content: left;
 }
