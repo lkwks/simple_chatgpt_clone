@@ -42,12 +42,16 @@ main > div {
 
 div.title{
     height: 20px;
+    position: relative;
 }
 
 div.title > button {
     background-color: #eee;
     border: 0px;
     color: #333;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
 div.categories{
@@ -238,7 +242,6 @@ div.category_icon.clicked:hover{
 }
 
 div.title_wrapper{
-    width:70%;
 }
 
 div.thread_title{
@@ -247,4 +250,11 @@ div.thread_title{
     overflow: hidden;
     white-space: nowrap;
     justify-content: left;
+}
+
+div.howtouse{
+    font-size: 10pt;
+    position: absolute;
+    right: 0px;
+    top: 0px;
 }
