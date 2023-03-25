@@ -355,6 +355,7 @@ class AnswerStream{
     {
         this.answer_set += answer;
         response_div.$target.lastChild.querySelector("pre").innerHTML += answer;
+        post_process(response_div.$target.lastChild.querySelector("pre"));
     }
     
     end()
