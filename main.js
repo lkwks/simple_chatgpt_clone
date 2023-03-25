@@ -139,12 +139,12 @@ function post_process(DOMelem, system_message="")
         result = `${process_inline(`\`${system_message}\``)} "${message}"`;
     else
     {
-        let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
+        let splitted = message.split("```");
         for (var i=0; i < splitted.length - 1; i+=2)
         {
             // 지금 splitted[i+1]이 </span>으로 시작되는 경우가 있을 수 있는데, 이런 경우에는 그냥 continue;
             console.log(splitted[i], splitted[i+1]);
-            if (splitted[i+1].startsWith("&lt;/span&gt;")) 
+            if (splitted[i+1].startsWith("</span>")) 
             {
                 result += splitted[i] + "```" + splitted[i+1] + "```";
                 continue;
@@ -359,7 +359,7 @@ class AnswerStream{
     
     add_answer(answer)
     {
-        this.answer_set += answer;
+        this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         response_div.$target.lastChild.querySelector("pre").innerHTML += answer;
         post_process(response_div.$target.lastChild.querySelector("pre"));
     }
