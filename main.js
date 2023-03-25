@@ -159,7 +159,7 @@ function process_inline(message)
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
 function post_process(DOMelem, system_message="")
 {
-    let result = "", message = DOMelem.querySelector("pre").innerHTML.trim();
+    let result = "", message = answer_stream.answer_set.trim();
         
     if (system_message !== "")
         result = `${process_inline(`\`${system_message}\``)} "${message}"`;
@@ -214,8 +214,6 @@ i ``` i+1
             result += process_inline(splitted[splitted.length-1]);
 
         // 결과적으로, result는 메시지 내용 중 코드블럭을 렌더링한 결과가 담긴 문자열.  
-
-        console.log(splitted, result);
 
     }
     DOMelem.innerHTML = `<pre class="tex2jax_process">${result}</pre><p>x</p>`;
@@ -365,7 +363,6 @@ class Messages{
 
 async function chatgpt_api(messages, stream_mode=false)
 {
-    console.log(messages);
     const api_url = "https://api.openai.com/v1/chat/completions";
     let param = {
         method: "POST",
@@ -411,9 +408,8 @@ class AnswerStream{
     
     add_answer(answer)
     {
-        console.log(answer, answer.includes("\n"));
         this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        response_div.$target.lastChild.innerHTML = `<pre class="tex2jax_process">${response_div.$target.lastChild.querySelector("pre").innerHTML + answer}</pre><p>x</p>`;
+        response_div.$target.lastChild.innerHTML = `<pre class="tex2jax_process">${this.answer_set}</pre><p>x</p>`;
         post_process(response_div.$target.lastChild);
     }
     
@@ -588,7 +584,6 @@ class Textarea{
         this.$target.value = "Generating...";
         messages.scrollIntoView();
 
-        console.log(1);
         chatgpt_api([messages.system_message, ...messages.messages], true).then(async response => {
             const reader = response.body.getReader();
             let buffer = '';
