@@ -246,7 +246,6 @@ div.title_wrapper{
 }
 
 div.thread_title{
-    width: 50%;
     color: #555;
     overflow: hidden;
     white-space: nowrap;
