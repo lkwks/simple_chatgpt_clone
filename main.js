@@ -152,7 +152,7 @@ function process_inline(message)
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
 function post_process(DOMelem, system_message="")
 {
-    let result = "", message = DOMelem.querySelector("<pre>").innerHTML.trim();
+    let result = "", message = DOMelem.querySelector("pre").innerHTML.trim();
         
     if (system_message !== "")
         result = `${process_inline(`\`${system_message}\``)} "${message}"`;
