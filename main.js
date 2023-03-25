@@ -404,6 +404,7 @@ class AnswerStream{
     
     add_answer(answer)
     {
+        console.log(answer);
         this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         response_div.$target.lastChild.querySelector("pre").innerHTML += answer;
         post_process(response_div.$target.lastChild.querySelector("pre"));
