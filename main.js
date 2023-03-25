@@ -143,6 +143,7 @@ function post_process(DOMelem, system_message="")
         for (var i=0; i < splitted.length - 1; i+=2)
         {
             // 지금 splitted[i+1]이 </span>으로 시작되는 경우가 있을 수 있는데, 이런 경우에는 그냥 continue;
+            console.log(splitted[i+1]);
             if (splitted[i+1].startsWith("</span>"))
             {
                 console.log(i);
