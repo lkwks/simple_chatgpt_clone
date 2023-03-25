@@ -382,6 +382,7 @@ async function chatgpt_api(messages, stream_mode=false)
     }
     else
     {
+        param.body = JSON.stringify(body_param);
         const response = await fetch(api_url, param);
         return await response.json();
     }
