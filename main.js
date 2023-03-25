@@ -152,7 +152,7 @@ function process_inline(message)
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
 function post_process(DOMelem, system_message="")
 {
-    let result = "", message = DOMelem.innerHTML.trim();
+    let result = "", message = DOMelem.querySelector("<pre>").innerHTML.trim();
         
     if (system_message !== "")
         result = `${process_inline(`\`${system_message}\``)} "${message}"`;
@@ -211,7 +211,7 @@ i ``` i+1
         console.log(splitted, result);
 
     }
-    DOMelem.innerHTML = result;
+    DOMelem.innerHTML = `<pre class="tex2jax_process">${result}</pre><p>x</p>`;
     Array.from(DOMelem.parentNode.querySelectorAll("pre > code")).forEach(elem => {
         if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
     });
@@ -406,8 +406,8 @@ class AnswerStream{
     {
         console.log(answer, answer.includes("\n"));
         this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        response_div.$target.lastChild.querySelector("pre").innerHTML += answer;
-        post_process(response_div.$target.lastChild.querySelector("pre"));
+        response_div.$target.lastChild.innerHTML = `<pre class="tex2jax_process">${response_div.$target.lastChild.querySelector("pre").innerHTML + answer}</pre><p>x</p>`;
+        post_process(response_div.$target.lastChild);
     }
     
     end()
