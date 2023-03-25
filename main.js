@@ -212,7 +212,7 @@ i ``` i+1
 
     }
     DOMelem.innerHTML = `<pre class="tex2jax_process">${result}</pre><p>x</p>`;
-    Array.from(DOMelem.parentNode.querySelectorAll("pre > code")).forEach(elem => {
+    Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
         if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
     });
 }
