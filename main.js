@@ -552,7 +552,7 @@ class Textarea{
         this.unlock();
         this.focus();
         if (prompt !== "continue" || prompt.split(" ").length > 200) messages.scrollIntoView(1);
-        messages.messages[messages.messages.length-1].content = this.answer_set;
+        messages.messages[messages.messages.length-1].content = answer_stream.answer_set;
         answer_stream.end();
     }
 
