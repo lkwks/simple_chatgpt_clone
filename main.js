@@ -136,7 +136,7 @@ function post_process(DOMelem, system_message="")
     let result = "", message = DOMelem.innerHTML;
         
     if (system_message !== "")
-        result = `${this.process_inline(`\`${system_message}\``)} "${message}"`;
+        result = `${process_inline(`\`${system_message}\``)} "${message}"`;
     else
     {
         let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
