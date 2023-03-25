@@ -157,9 +157,9 @@ function process_inline(message)
 // stream으로 응답 받은 메시지가 DOM 엘리먼트에 담겨서 이 함수의 인자로 들어왔을 때, 
 // 그 메시지 안 내용 중 코드블럭이 있다면 그 코드블럭을 렌더링해주는 함수.
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
-function post_process(DOMelem, system_message="")
+function post_process(DOMelem, message, system_message="")
 {
-    let result = "", message = answer_stream.answer_set.trim();
+    let result = ""; message = message.trim();
         
     if (system_message !== "")
         result = `${process_inline(`\`${system_message}\``)} "${message}"`;
@@ -237,7 +237,7 @@ class Message{
         new_element.setAttribute("timestamp", this.timestamp);
         new_element.classList.add(class_name);
         new_element.innerHTML = `<pre class="tex2jax_process">${message}</pre><p>x</p>`;
-        post_process(new_element, system_message);
+        post_process(new_element, message, system_message);
         return new_element;
     }
 }
@@ -409,8 +409,7 @@ class AnswerStream{
     add_answer(answer)
     {
         this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        response_div.$target.lastChild.innerHTML = `<pre class="tex2jax_process">${this.answer_set}</pre><p>x</p>`;
-        post_process(response_div.$target.lastChild);
+        post_process(response_div.$target.lastChild, this.answer_set);
     }
     
     end()
@@ -596,7 +595,7 @@ class Textarea{
                 buffer = messages_buffer.pop();
                 if (messages_buffer.length === 0) 
                 {
-                    this.end_stream();
+                    textarea.end_stream();
                     return;
                 }
       
@@ -607,7 +606,7 @@ class Textarea{
                        answer_stream.start();
                        val = JSON.parse(message.replace("data: ", ""));
                        if (val.choices[0].delta.content)
-                           await answer_stream.add_answer(val.choices[0].delta.content);
+                           answer_stream.add_answer(val.choices[0].delta.content);
                    }
 
                 messages.update_last_token(answer_stream.answer_set.split(" ").length);
