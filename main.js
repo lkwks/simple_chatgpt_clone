@@ -557,7 +557,7 @@ class Textarea{
         answer_stream.end();
     }
 
-    send_message()
+    async send_message()
     {
         const prompt = this.$target.value.trim();
         if (!API_KEY || prompt.length === 0) return;
@@ -585,7 +585,7 @@ class Textarea{
         this.$target.value = "Generating...";
         messages.scrollIntoView();
 
-        chatgpt_api([messages.system_message, ...messages.messages], true).then(async response => {
+        await chatgpt_api([messages.system_message, ...messages.messages], true).then(async response => {
             const reader = response.body.getReader();
             let buffer = '';
 
