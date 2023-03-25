@@ -115,6 +115,25 @@ stream 모드 추가 계획
 
 */
 
+function make_codeblock(splitted1, splitted2)
+{
+    let result = "";
+    let code_content = splitted2.split("\n");
+    let language = code_content[0].trim();
+    let result_inline = process_inline(splitted1);
+    code_content.shift();
+
+    if (language === "LaTeX")
+        result = `${result_inline}$$\n${code_content.join("\n")}\n$$`;
+    else
+    {
+        if (language === "")
+            language = "plaintext";
+        result = `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
+    }
+    return result;
+}
+
 
 function process_inline(message)
 {
@@ -133,38 +152,63 @@ function process_inline(message)
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
 function post_process(DOMelem, system_message="")
 {
-    let result = "", message = DOMelem.innerHTML;
+    let result = "", message = DOMelem.innerHTML.trim();
         
     if (system_message !== "")
         result = `${process_inline(`\`${system_message}\``)} "${message}"`;
     else
     {
         let splitted = message.split("```");
-        for (var i=0; i < splitted.length - 1; i+=2)
-        {
-            // 지금 splitted[i+1]이 </span>으로 시작되는 경우가 있을 수 있는데, 이런 경우에는 그냥 continue;
-            console.log(splitted[i], splitted[i+1]);
-            if (splitted[i+1].startsWith("</span>")) 
-            {
-                result += splitted[i] + "```" + splitted[i+1] + "```";
-                continue;
-            }
-            let code_content = splitted[i+1].split("\n");
-            let language = code_content[0].trim();
-            let result_inline = process_inline(splitted[i]);
-            code_content.shift();
 
-            if (language === "LaTeX")
-                result += `${result_inline}$$\n${code_content.join("\n")}\n$$`;
+/*
+
+일단, i는 항상 짝수.
+
+1.
+
+i ``` i+1 ``` i+2
+i ``` i+1 ```
+
+
+이런 상황이면 걱정 없고, 그냥 for문으로 i, i+1을 넣으면 된다.
+
+
+
+2.
+
+i ``` i+1
+
+이런 상황이면 for문을 중단해야 됨.
+
+
+*/
+
+        // i가 끝까지 가긴 가는데 ..
+
+        // 아래 for문은 splitted.length가 3 이상일 때만 돌아간다.
+        for (var i=0; i < splitted.length - 2; i+=2)
+        {
+            if (splitted[i+1].startsWith("</span>")) 
+                result += splitted[i] + "```" + splitted[i+1] + "```";
             else
-            {
-                if (language === "")
-                    language = "plaintext";
-                result += `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
-            }
+                result += make_codeblock(splitted[i], splitted[i+1]);
         }
-        if (splitted.length % 2) result += process_inline(splitted[splitted.length-1]);
+
+        // 지금 splitted.length가 짝수냐 홀수냐에 따라 마지막 처리가 달라짐.
+        // 짝수면 두 개 남은 거고, 홀수면 한 개 남은 거.
+        if (splitted.length % 2 === 0)
+        {
+            if (message.endsWith("```")) 
+                result += make_codeblock(splitted[splitted.length-2], splitted[splitted.length-1]);
+            else
+                result += process_inline(splitted[splitted.length-2]) + "```" + process_inline(splitted[splitted.length-1]); 
+        }
+        else
+            result += process_inline(splitted[splitted.length-1]);
+            
         // 결과적으로, result는 메시지 내용 중 코드블럭을 렌더링한 결과가 담긴 문자열.  
+
+
     }
     DOMelem.innerHTML = result;
     Array.from(DOMelem.parentNode.querySelectorAll("pre > code")).forEach(elem => {
@@ -503,7 +547,7 @@ class Textarea{
         this.unlock();
         this.focus();
         if (prompt !== "continue" || prompt.split(" ").length > 200) messages.scrollIntoView(1);
-
+        messages.messages[messages.messages.length-1].content = this.answer_set;
         answer_stream.end();
     }
 
