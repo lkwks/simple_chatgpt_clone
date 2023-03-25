@@ -565,6 +565,7 @@ class Textarea{
                            await answer_stream.add_answer(val.choices[0].delta.content);
                    }
 
+                console.log(messages);
                 messages.update_last_token(answer_stream.answer_set.split(" ").length);
                 if (thread.id === null && messages.sum_of_tokens(0) > 100) 
                     thread.make_title();
