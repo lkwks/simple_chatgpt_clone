@@ -242,6 +242,7 @@ div.category_icon.clicked:hover{
 }
 
 div.title_wrapper{
+    width: calc(100% - 170px);
 }
 
 div.thread_title{
