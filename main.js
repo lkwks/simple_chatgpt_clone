@@ -103,61 +103,86 @@ class Categories{
 
 }
 
+/*
+
+stream 모드 추가 계획
+
+1. 현재는 모든 메시지를 다 받은 후에 렌더링을 하는데, 이를 스트림 모드로 바꾸어서 새로운 메시지가 오면 바로 렌더링하도록 하자.
+
+2. 현재는 메시지를 렌더링 하는 코드가 막 섞여있는데, 이를 클래스로 분리하자.
+
+- Message 클래스 안에 있는 메서드들은 좀 어려 기능이 섞여있네.
+
+*/
+
+
+function process_inline(message)
+{
+    let splitted_inline = message.split("`"), result_inline="";
+    for (var i=0; i < splitted_inline.length - 1; i+=2)
+        result_inline += `${splitted_inline[i]}<span class="block_inline">\`</span><span><code>${splitted_inline[i+1]}</code></span><span class="block_inline">\`</span>`;
+    if (splitted_inline.length % 2) result_inline += splitted_inline[splitted_inline.length-1];
+    return result_inline;
+}
+
+
+
+
+// stream으로 응답 받은 메시지가 DOM 엘리먼트에 담겨서 이 함수의 인자로 들어왔을 때, 
+// 그 메시지 안 내용 중 코드블럭이 있다면 그 코드블럭을 렌더링해주는 함수.
+// DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
+function post_process(DOMelem, system_message="")
+{
+    let result = "", message = DOMelem.innerHTML;
+        
+    if (system_message !== "")
+        result = `${this.process_inline(`\`${system_message}\``)} "${message}"`;
+    else
+    {
+        let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
+        for (var i=0; i < splitted.length - 1; i+=2)
+        {
+            // 지금 splitted[i+1]이 </span>으로 시작되는 경우가 있을 수 있는데, 이런 경우에는 그냥 continue;
+            if (splitted[i+1].startsWith("</span>")) continue;
+            let code_content = splitted[i+1].split("\n");
+            let language = code_content[0].trim();
+            let result_inline = process_inline(splitted[i]);
+            code_content.shift();
+
+            if (language === "LaTeX")
+                result += `${result_inline}$$\n${code_content.join("\n")}\n$$`;
+            else
+            {
+                if (language === "")
+                    language = "plaintext";
+                result += `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
+            }
+        }
+        if (splitted.length % 2) result += this.process_inline(splitted[splitted.length-1]);
+        // 결과적으로, result는 메시지 내용 중 코드블럭을 렌더링한 결과가 담긴 문자열.  
+    }
+    DOMelem.innerHTML = result;
+    Array.from(DOMelem.parentNode.querySelectorAll("pre > code")).forEach(elem => {
+        if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
+    });
+}
+
+
 class Message{
     constructor(message, class_name, system_message="")
     {
         this.timestamp = (new Date()).getTime();
-        this.element = this.make_element(message, class_name, system_message);
-        this.token = message.split(" ").length * 5;
+        this.element = this.make_element(class_name, message, system_message);
+        this.token = (message !== "") ? message.split(" ").length*5 : 0;
     }
 
-    process_inline(message)
+    make_element(class_name, message, system_message)
     {
-        let splitted_inline = message.split("`"), result_inline="";
-        for (var i=0; i < splitted_inline.length - 1; i+=2)
-            result_inline += `${splitted_inline[i]}<span class="block_inline">\`</span><span><code>${splitted_inline[i+1]}</code></span><span class="block_inline">\`</span>`;
-        if (splitted_inline.length % 2) result_inline += splitted_inline[splitted_inline.length-1];
-        return result_inline;
-    }
-
-    make_element(message, class_name, system_message="")
-    {
-
         const new_element = document.createElement("div");
         new_element.setAttribute("timestamp", this.timestamp);
         new_element.classList.add(class_name);
-
-        let result = "";
-        
-        if (system_message !== "")
-            result = `${this.process_inline(`\`${system_message}\``)} "${message}"`;
-        else
-        {
-            let splitted = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").split("```");
-            for (var i=0; i < splitted.length - 1; i+=2)
-            {
-                let code_content = splitted[i+1].split("\n");
-                let language = code_content[0].trim();
-                let result_inline = this.process_inline(splitted[i]);
-                code_content.shift();
-    
-                if (language === "LaTeX")
-                    result += `${result_inline}$$\n${code_content.join("\n")}\n$$`;
-                else
-                {
-                    if (language === "")
-                        language = "plaintext";
-                    result += `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
-                }
-            }
-            if (splitted.length % 2) result += this.process_inline(splitted[splitted.length-1]);    
-        }
-
-
-        new_element.innerHTML = `<pre class="tex2jax_process">${result}</pre><p>x</p>`;
-       
- 
-        Array.from(new_element.querySelectorAll("pre > code")).forEach(elem => hljs.highlightElement(elem));
+        new_element.innerHTML = `<pre class="tex2jax_process">${message}</pre><p>x</p>`;
+        post_process(new_element.querySelector("pre"), system_message);
         return new_element;
     }
 }
@@ -190,11 +215,18 @@ class Messages{
     push_message(elem, reload_mode=false)
     {
         elem.content = elem.content.trim();
-        this.message_objects.push(new Message(elem.content, elem.role));
+        const message = new Message(elem.content, elem.role);
+
+        this.message_objects.push(message);
         this.messages.push(elem);
-        if (reload_mode === false) thread.push(elem);
-        let k = this.message_objects[this.message_objects.length-1].element;
-        response_div.render_message(k);
+        response_div.render_message(message.element);
+
+        // reload_mode가 true라는 건 스레드 이동 상황에서 기존 페이지를 싹 비우고 로컬 스토리지에 있었던 메시지를 하나씩 불러오는 상황이란 뜻.
+        // 반대로 false라는 건 로컬 스토리지에 있는 메시지를 꺼내오는 게 아니라 API에서 받은 메시지를 렌더링하는 상황.
+        if (reload_mode === false)
+            thread.push(elem); 
+            // elem.role이 user일 땐 이 코드가 여기 있어야 함.
+            // elem.role이 assistant일 땐 여기가 아니라 메시지 stream을 받을 때마다 이게 실행돼야 함.
 
         if (elem.role === "user")
             this.flush_if_too_many_tokens();
@@ -261,10 +293,10 @@ class Messages{
 
     get_last_element()
     {
-        return this.messages[this.messages.length-1].content;                
+        return this.messages[this.messages.length-2].content;                
     }
 
-    sum_of_tokens(minus_num=1)
+    sum_of_tokens(minus_num=2)
     {
         let count = 0;
         for (var i=0; i < this.messages.length-minus_num; i++)
@@ -274,18 +306,74 @@ class Messages{
 }
 
 
-async function chatgpt_api(messages)
+async function chatgpt_api(messages, stream_mode=false)
 {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const api_url = "https://api.openai.com/v1/chat/completions";
+    let param = {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("API_KEY")}`
-        },
-        body: JSON.stringify({ model: localStorage.getItem("model"), messages: messages})
-    });
-    return await response.json();
+        }
+    };
+    let body_param = {model: localStorage.getItem("model"), messages: messages};
+
+    if (stream_mode) 
+    {
+        body_param.stream = true;
+        param.body = JSON.stringify(body_param);
+        return fetch(api_url, param);
+    }
+    else
+    {
+        const response = await fetch(api_url, param);
+        return await response.json();
+    }
 }
+
+
+
+class AnswerStream{
+    constructor()
+    {
+        this.now_streaming = false;
+        this.now_answer = "";
+        this.answer_set = "";
+        this.signal = false;
+    }
+    
+    start()
+    {
+        if (this.now_streaming === false)
+        {
+            this.answer_set = "";
+            this.now_answer = "";
+            this.now_streaming = true;
+            this.signal = false;
+        }
+    }
+    
+    async add_answer(answer)
+    {
+        this.answer_set += answer;
+        this.now_answer += answer;
+        const sentences_arr = sentences(this.now_answer);
+        if (sentences_arr.length > 1)
+        {
+            await audio_manager.push_text(sentences_arr[0]);
+            this.now_answer = sentences_arr[1];
+        }
+    }
+    
+    end()
+    {        
+        this.signal = false;
+        this.now_streaming = false;
+    }
+}
+
+
+const answer_stream = new AnswerStream();
 
 
 
@@ -410,6 +498,16 @@ class Textarea{
         if (device_width >= 800) this.$target.select();
     }
 
+    end_stream()
+    {
+        this.$target.value = "";
+        this.unlock();
+        this.focus();
+        if (prompt !== "continue" || prompt.split(" ").length > 200) messages.scrollIntoView(1);
+
+        answer_stream.end();
+    }
+
     send_message()
     {
         const prompt = this.$target.value.trim();
@@ -434,39 +532,63 @@ class Textarea{
 
         this.lock();
         messages.push_message({role: "user", content: prompt});
+        messages.push_message({role: "assistant", content: ""});
         this.$target.value = "Generating...";
         messages.scrollIntoView();
 
-        chatgpt_api([messages.system_message, ...messages.messages]).then( outputJson => {
-            console.log(outputJson);
-            messages.update_last_token(outputJson.usage.prompt_tokens - messages.sum_of_tokens());
-            messages.push_message({role: "assistant", content: outputJson.choices[0].message.content});
-            messages.update_last_token(outputJson.usage.completion_tokens);
-            
-            if (thread.id === null && outputJson.usage.total_tokens > 100)
-                thread.make_title();
-            
-            console.log(outputJson.choices[0].message.content);
-            console.log(outputJson.usage.total_tokens);
+        chatgpt_api([messages.system_message, ...messages.messages], true).then(async response => {
+            const reader = response.body.getReader();
+            let buffer = '';
 
-            if (outputJson.choices[0].finish_reason === "length") 
-            {
-                messages.push_message({role: "user", content: "continue"});
-                this.send_message();
-            }
-            else
-            {
-                this.$target.value = "";
-                this.unlock();
-                this.focus();
-                if (prompt !== "continue" || prompt.split(" ").length > 200) messages.scrollIntoView(1);
-            }
-        }).catch(e=>{
+            await reader.read().then(async function processResult(result) {
+                if (answer_stream.signal) return "";
+                buffer += new TextDecoder('utf-8').decode(result.value || new Uint8Array());
+                  
+                var messages = buffer.split('\n\n')
+                buffer = messages.pop();
+                if (messages.length === 0) 
+                {
+                    this.end_stream();
+                    return;
+                }
+      
+                let val;
+                for (var message of messages)
+                   if (message.includes("data: ") && message.includes("[DONE]") === false)
+                   {
+                       answer_stream.start();
+                       val = JSON.parse(message.replace("data: ", ""));
+                       if (val.choices[0].delta.content)
+                           await answer_stream.add_answer(val.choices[0].delta.content);
+                   }
+
+                messages.update_last_token(answer_stream.answer_set.split(" ").length);
+                if (thread.id === null && messages.sum_of_tokens(0) > 100) 
+                    thread.make_title();
+                thread.push({role: "assistant", content: answer_stream.answer_set}, true);
+                
+                if (val.choices[0].finish_reason === "length")
+                {
+                    messages.push_message({role: "user", content: "continue"});
+                    this.send_message();
+                    return;
+                }
+                else if (val.choices[0].finish_reason === "stop")
+                {
+                    this.end_stream();
+                    return;
+                }
+                
+                reader.read().then(processResult);
+              });
+            })
+        .catch(e=>{
             alert("API 에러 발생! 개발자 모드에서 에러 메시지를 확인하세요.");
             console.log(e);
             this.unlock();
             this.focus();
             this.$target.value = messages.get_last_element();
+            messages.delete_message(response_div.$target.lastChild);
             messages.delete_message(response_div.$target.lastChild);
         });
     
@@ -553,12 +675,22 @@ You should answer in this format: "The index of the category: [[number]]"`
     }
 
     // localStorage의 thread_{num}을 계속 업데이트 하는 코드
-    push(elem)
+    push(elem, now_streaming=false)
     {
         let thread_id = (this.id || this.id === 0) ? `thread_${this.id}` : "thread_temp";
         let thread_temp = JSON.parse(localStorage.getItem(thread_id));
-        if (thread_temp) thread_temp.push(elem);
-        else thread_temp = [elem];
+        if (thread_temp) 
+        {
+            if (now_streaming === false)
+                thread_temp.push(elem);
+            else
+                thread_temp[thread_temp.length-1] = elem; // 현재 스트리밍 중이라면 마지막 메시지를 업데이트
+        }
+        else 
+        {
+            // 현재 thread_temp가 비어있다면 elem으로 초기화. 이 경우는 첫 엘리먼트의 role이 user일 때만 발생. 즉, 스트리밍이 시작되기 전에만 발생.
+            thread_temp = [elem];
+        }
         localStorage.setItem(thread_id, JSON.stringify(thread_temp));
     }
 
