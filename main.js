@@ -1,6 +1,3 @@
-import {sentences} from './lib/tokenizer.js';
-
-
 let API_KEY = localStorage.getItem("API_KEY");
 if (API_KEY && API_KEY !== "null") document.querySelector("div.API_KEY").classList.add("hide");
 
@@ -340,7 +337,6 @@ class AnswerStream{
     constructor()
     {
         this.now_streaming = false;
-        this.now_answer = "";
         this.answer_set = "";
         this.signal = false;
     }
@@ -350,19 +346,15 @@ class AnswerStream{
         if (this.now_streaming === false)
         {
             this.answer_set = "";
-            this.now_answer = "";
             this.now_streaming = true;
             this.signal = false;
         }
     }
     
-    async add_answer(answer)
+    add_answer(answer)
     {
         this.answer_set += answer;
-        this.now_answer += answer;
-        const sentences_arr = sentences(this.now_answer);
-        if (sentences_arr.length > 1)
-            this.now_answer = sentences_arr[1];
+        response_div.$target.lastChild.querySelector("pre").innerHTML += answer;
     }
     
     end()
@@ -570,12 +562,12 @@ class Textarea{
                 if (val.choices[0].finish_reason === "length")
                 {
                     messages.push_message({role: "user", content: "continue"});
-                    this.send_message();
+                    textarea.send_message();
                     return;
                 }
                 else if (val.choices[0].finish_reason === "stop")
                 {
-                    this.end_stream();
+                    textarea.end_stream();
                     return;
                 }
                 
