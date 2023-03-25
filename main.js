@@ -205,9 +205,10 @@ i ``` i+1
         }
         else
             result += process_inline(splitted[splitted.length-1]);
-            
+
         // 결과적으로, result는 메시지 내용 중 코드블럭을 렌더링한 결과가 담긴 문자열.  
 
+        console.log(splitted, result);
 
     }
     DOMelem.innerHTML = result;
