@@ -167,31 +167,6 @@ function post_process(DOMelem, message, system_message="")
     {
         let splitted = message.split("```");
 
-/*
-
-일단, i는 항상 짝수.
-
-1.
-
-i ``` i+1 ``` i+2
-i ``` i+1 ```
-
-
-이런 상황이면 걱정 없고, 그냥 for문으로 i, i+1을 넣으면 된다.
-
-
-
-2.
-
-i ``` i+1
-
-이런 상황이면 for문을 중단해야 됨.
-
-
-*/
-
-        // i가 끝까지 가긴 가는데 ..
-
         // 아래 for문은 splitted.length가 3 이상일 때만 돌아간다.
         for (var i=0; i < splitted.length - 2; i+=2)
         {
@@ -205,7 +180,7 @@ i ``` i+1
         // 짝수면 두 개 남은 거고, 홀수면 한 개 남은 거.
         if (splitted.length % 2 === 0)
         {
-            if (message.endsWith("```") && (splitted.length / 2) % 2 === 0)
+            if (message.endsWith("```"))
                 result += make_codeblock(splitted[splitted.length-2], splitted[splitted.length-1]);
             else
                 result += process_inline(splitted[splitted.length-2]) + "```" + process_inline(splitted[splitted.length-1]); 
@@ -554,6 +529,7 @@ class Textarea{
         this.focus();
         if (prompt !== "continue" || prompt.split(" ").length > 200) messages.scrollIntoView(1);
         messages.messages[messages.messages.length-1].content = answer_stream.answer_set;
+        console.log(answer_stream.answer_set);
         answer_stream.end();
     }
 
