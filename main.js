@@ -232,7 +232,7 @@ class Message{
         new_element.setAttribute("timestamp", this.timestamp);
         new_element.classList.add(class_name);
         new_element.innerHTML = `<pre class="tex2jax_process">${message}</pre><p>x</p>`;
-        post_process(new_element.querySelector("pre"), system_message);
+        post_process(new_element, system_message);
         return new_element;
     }
 }
