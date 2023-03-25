@@ -1,3 +1,6 @@
+import {sentences} from './lib/tokenizer.js';
+
+
 let API_KEY = localStorage.getItem("API_KEY");
 if (API_KEY && API_KEY !== "null") document.querySelector("div.API_KEY").classList.add("hide");
 
