@@ -198,7 +198,7 @@ i ``` i+1
         // 짝수면 두 개 남은 거고, 홀수면 한 개 남은 거.
         if (splitted.length % 2 === 0)
         {
-            if (message.endsWith("```")) 
+            if (message.endsWith("```") && (splitted.length / 2) % 2 === 0)
                 result += make_codeblock(splitted[splitted.length-2], splitted[splitted.length-1]);
             else
                 result += process_inline(splitted[splitted.length-2]) + "```" + process_inline(splitted[splitted.length-1]); 
