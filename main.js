@@ -647,10 +647,13 @@ class Thread{
         this.title = "";
         this.id = null;
         this.category_id = null;
+        this.title_making = false;
     }
 
     async make_title()
     {
+        if (this.title_making) return;
+        this.title_making = true;
         await chatgpt_api([...messages.messages, 
             {role:"user", content: "By the way, which title would be the best \
 that summarizes our conversation so far? Answer in less than five words, in the language you used."
