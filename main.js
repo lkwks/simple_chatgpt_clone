@@ -139,8 +139,15 @@ function process_inline(message)
 {
     let splitted_inline = message.split("`"), result_inline="";
     for (var i=0; i < splitted_inline.length - 1; i+=2)
+    {
+        if (splitted_inline[i+1] === "") return message;
         result_inline += `${splitted_inline[i]}<span class="block_inline">\`</span><span><code>${splitted_inline[i+1]}</code></span><span class="block_inline">\`</span>`;
-    if (splitted_inline.length % 2) result_inline += splitted_inline[splitted_inline.length-1];
+    }
+    if (splitted_inline.length % 2)
+    {
+        if (splitted_inline[splitted_inline.length-1] === "") return message;
+        result_inline += splitted_inline[splitted_inline.length-1];
+    } 
     return result_inline;
 }
 
@@ -581,6 +588,7 @@ class Textarea{
         this.$target.value = "Generating...";
         messages.scrollIntoView();
 
+        console.log(1);
         chatgpt_api([messages.system_message, ...messages.messages], true).then(async response => {
             const reader = response.body.getReader();
             let buffer = '';
