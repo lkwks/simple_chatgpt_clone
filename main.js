@@ -161,7 +161,7 @@ function post_process(DOMelem, system_message="")
                 result += `${result_inline}<span class="block">\`\`\`</span><code class="language-${language}">${code_content.join("\n")}</code><span class="block">\`\`\`</span>`;
             }
         }
-        if (splitted.length % 2) result += this.process_inline(splitted[splitted.length-1]);
+        if (splitted.length % 2) result += process_inline(splitted[splitted.length-1]);
         // 결과적으로, result는 메시지 내용 중 코드블럭을 렌더링한 결과가 담긴 문자열.  
     }
     DOMelem.innerHTML = result;
