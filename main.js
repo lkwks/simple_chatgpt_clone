@@ -362,10 +362,7 @@ class AnswerStream{
         this.now_answer += answer;
         const sentences_arr = sentences(this.now_answer);
         if (sentences_arr.length > 1)
-        {
-            await audio_manager.push_text(sentences_arr[0]);
             this.now_answer = sentences_arr[1];
-        }
     }
     
     end()
