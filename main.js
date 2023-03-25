@@ -547,16 +547,16 @@ class Textarea{
                 if (answer_stream.signal) return "";
                 buffer += new TextDecoder('utf-8').decode(result.value || new Uint8Array());
                   
-                var messages = buffer.split('\n\n')
-                buffer = messages.pop();
-                if (messages.length === 0) 
+                var messages_buffer = buffer.split('\n\n')
+                buffer = messages_buffer.pop();
+                if (messages_buffer.length === 0) 
                 {
                     this.end_stream();
                     return;
                 }
       
                 let val;
-                for (var message of messages)
+                for (var message of messages_buffer)
                    if (message.includes("data: ") && message.includes("[DONE]") === false)
                    {
                        answer_stream.start();
@@ -565,7 +565,6 @@ class Textarea{
                            await answer_stream.add_answer(val.choices[0].delta.content);
                    }
 
-                console.log(messages);
                 messages.update_last_token(answer_stream.answer_set.split(" ").length);
                 if (thread.id === null && messages.sum_of_tokens(0) > 100) 
                     thread.make_title();
