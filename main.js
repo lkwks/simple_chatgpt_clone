@@ -144,7 +144,11 @@ function post_process(DOMelem, system_message="")
         {
             // 지금 splitted[i+1]이 </span>으로 시작되는 경우가 있을 수 있는데, 이런 경우에는 그냥 continue;
             console.log(splitted[i], splitted[i+1]);
-            if (splitted[i+1].startsWith("&lt;/span&gt;")) continue;
+            if (splitted[i+1].startsWith("&lt;/span&gt;")) 
+            {
+                result += splitted[i] + "```" + splitted[i+1] + "```";
+                continue;
+            }
             let code_content = splitted[i+1].split("\n");
             let language = code_content[0].trim();
             let result_inline = process_inline(splitted[i]);
@@ -309,6 +313,7 @@ class Messages{
 
 async function chatgpt_api(messages, stream_mode=false)
 {
+    console.log(messages);
     const api_url = "https://api.openai.com/v1/chat/completions";
     let param = {
         method: "POST",
