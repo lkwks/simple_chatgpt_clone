@@ -185,15 +185,6 @@ async function post_process(DOMelem, message, system_message="")
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
         if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
     });
-    
-    try
-    {
-        await MathJax.typesetPromise();
-    }
-    catch(e)
-    {
-        console.log(e);
-    }
 }
 
 
@@ -381,10 +372,18 @@ class AnswerStream{
         }
     }
     
-    add_answer(answer)
+    async add_answer(answer)
     {
         this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         post_process(response_div.$target.lastChild, this.answer_set);
+        try
+        {
+            await MathJax.typesetPromise();
+        }
+        catch(e)
+        {
+            console.log(e);
+        }
     }
     
     end()
@@ -581,7 +580,7 @@ class Textarea{
                        answer_stream.start();
                        val = JSON.parse(message.replace("data: ", ""));
                        if (val.choices[0].delta.content)
-                           answer_stream.add_answer(val.choices[0].delta.content);
+                           await answer_stream.add_answer(val.choices[0].delta.content);
                    }
 
                 messages.update_last_token(answer_stream.answer_set.split(" ").length);
