@@ -318,7 +318,7 @@ class Messages{
 
     scrollIntoView(i=0)
     {
-        this.message_objects[this.message_objects.length-i-1].element.scrollIntoView({ behavior: 'smooth' });
+        this.message_objects[this.message_objects.length-i-2].element.scrollIntoView({ behavior: 'smooth' });
     }
 
     get_last_element()
