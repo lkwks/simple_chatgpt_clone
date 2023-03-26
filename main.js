@@ -185,7 +185,15 @@ function post_process(DOMelem, message, system_message="")
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
         if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
     });
-    MathJax.typesetPromise().then(() => MathJax.typesetPromise()).catch((err) => console.log(err.message));    
+    
+    try
+    {
+        MathJax.typesetPromise().then(() => MathJax.typesetPromise());
+    }
+    catch(e)
+    {
+        console.log(e);
+    }
 }
 
 
