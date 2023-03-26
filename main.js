@@ -147,7 +147,7 @@ function process_inline(message)
 // stream으로 응답 받은 메시지가 DOM 엘리먼트에 담겨서 이 함수의 인자로 들어왔을 때, 
 // 그 메시지 안 내용 중 코드블럭이 있다면 그 코드블럭을 렌더링해주는 함수.
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
-function post_process(DOMelem, message, system_message="")
+async function post_process(DOMelem, message, system_message="")
 {
     let result = ""; message = message.trim();
         
@@ -188,7 +188,7 @@ function post_process(DOMelem, message, system_message="")
     
     try
     {
-        MathJax.typesetPromise().then(() => MathJax.typesetPromise());
+        await MathJax.typesetPromise();
     }
     catch(e)
     {
@@ -205,13 +205,13 @@ class Message{
         this.token = (message !== "") ? message.split(" ").length*5 : 0;
     }
 
-    make_element(class_name, message, system_message)
+    async make_element(class_name, message, system_message)
     {
         const new_element = document.createElement("div");
         new_element.setAttribute("timestamp", this.timestamp);
         new_element.classList.add(class_name);
         new_element.innerHTML = `<pre class="tex2jax_process">${message}</pre><p>x</p>`;
-        post_process(new_element, message, system_message);
+        await post_process(new_element, message, system_message);
         return new_element;
     }
 }
