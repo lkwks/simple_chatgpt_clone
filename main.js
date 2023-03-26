@@ -307,7 +307,6 @@ class Messages{
 
     scrollIntoView(i=1)
     {
-        console.log(this.message_objects);
         this.message_objects[this.message_objects.length-i-1].element.scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -328,7 +327,6 @@ class Messages{
 
 async function chatgpt_api(messages, stream_mode=false)
 {
-    console.log(messages);
     const api_url = "https://api.openai.com/v1/chat/completions";
     let param = {
         method: "POST",
@@ -517,7 +515,6 @@ class Textarea{
         this.$target.value = "";
         this.unlock();
         this.focus();
-        if (prompt !== "continue" || prompt.split(" ").length > 200) messages.scrollIntoView(1);
         messages.messages[messages.messages.length-1].content = answer_stream.answer_set;
         console.log(answer_stream.answer_set);
         answer_stream.end();
@@ -657,8 +654,8 @@ that summarizes our conversation so far? Answer in less than five words, in the 
         await chatgpt_api([...messages.messages, 
             {role:"user", content: `By the way, which category would be the best \
 if you put the summary our conversation so far into it? \
-I'll give you a JS array: ${filteredArr} \
-You should answer in this format: "The index of the category: [[number]]"`
+You should find the category among the elements in this JS array: ${filteredArr} \
+Answer in this format: "The index of the category: {number}"`
             }]).then(outputJson => {
                 console.log(outputJson.choices[0].message.content);
 
