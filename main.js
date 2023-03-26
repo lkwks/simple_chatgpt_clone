@@ -130,7 +130,7 @@ function process_inline(message)
     for (var i=0; i < splitted_inline.length - 1; i+=2)
     {
         if (splitted_inline[i+1] === "") return message;
-        splitted_inline[i] = splitted_inline[i].replace(/$/g, "\\$");
+        splitted_inline[i] = splitted_inline[i].replace(/\$/g, "\\$");
         result_inline += `${splitted_inline[i]}<span class="block_inline">\`</span><span><code>${splitted_inline[i+1]}</code></span><span class="block_inline">\`</span>`;
     }
     if (splitted_inline.length % 2)
@@ -185,6 +185,7 @@ function post_process(DOMelem, message, system_message="")
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
         if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
     });
+    MathJax.typesetPromise().then(() => MathJax.typesetPromise()).catch((err) => console.log(err.message));    
 }
 
 
@@ -625,7 +626,6 @@ class ResponseDiv{
         if (elem.content === "continue") return;
 
         this.$target.appendChild(elem);
-        MathJax.typesetPromise().then(() => MathJax.typesetPromise()).catch((err) => console.log(err.message));
     }
 }
 
