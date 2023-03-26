@@ -633,7 +633,7 @@ class Thread{
     {
         this.title = "";
         this.id = null;
-        this.category_id = null;
+        this.category_id = 0;
         this.title_making = false;
     }
 
@@ -650,19 +650,18 @@ that summarizes our conversation so far? Answer in less than five words, in the 
                 document.querySelector("div.thread_title").innerText = this.title;
             }).catch(e=>{console.log(e)});
 
+        this.id = categories.threads.length;        
+        
         const filteredArr = categories.categories.filter(el => el !== "");
         await chatgpt_api([...messages.messages, 
             {role:"user", content: `By the way, which category would be the best \
 if you put the summary our conversation so far into it? \
-You should find the category among the elements in this JS array: ${filteredArr} \
+You should find the category among the elements in this JS array: ${JSON.stringify(filteredArr)} \
 Answer in this format: "The index of the category: {number}"`
             }]).then(outputJson => {
                 console.log(outputJson.choices[0].message.content);
 
-                this.id = categories.threads.length;
-
                 let output_index = outputJson.choices[0].message.content.split("The index of the category: ")[1].replace(`"`, "").split(" ")[0];
-                this.category_id = 0;
                 if (isNaN(output_index) === false)
                     categories.categories.forEach((elem, i) =>
                     {
@@ -671,7 +670,7 @@ Answer in this format: "The index of the category: {number}"`
                     });
 
                 categories.add_this_thread();
-            }).catch(e=>{console.log(e)});
+            }).catch(e=>{console.log(e); categories.add_this_thread();});
     }
 
 
