@@ -103,17 +103,6 @@ class Categories{
 
 }
 
-/*
-
-stream 모드 추가 계획
-
-1. 현재는 모든 메시지를 다 받은 후에 렌더링을 하는데, 이를 스트림 모드로 바꾸어서 새로운 메시지가 오면 바로 렌더링하도록 하자.
-
-2. 현재는 메시지를 렌더링 하는 코드가 막 섞여있는데, 이를 클래스로 분리하자.
-
-- Message 클래스 안에 있는 메서드들은 좀 어려 기능이 섞여있네.
-
-*/
 
 function make_codeblock(splitted1, splitted2)
 {
@@ -316,9 +305,10 @@ class Messages{
         this.message_objects[this.message_objects.length-1].token = token_n;
     }
 
-    scrollIntoView(i=0)
+    scrollIntoView(i=1)
     {
-        this.message_objects[this.message_objects.length-i-2].element.scrollIntoView({ behavior: 'smooth' });
+        console.log(this.message_objects);
+        this.message_objects[this.message_objects.length-i-1].element.scrollIntoView({ behavior: 'smooth' });
     }
 
     get_last_element()
