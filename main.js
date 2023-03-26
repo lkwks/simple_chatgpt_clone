@@ -376,14 +376,6 @@ class AnswerStream{
     {
         this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         post_process(response_div.$target.lastChild, this.answer_set);
-        try
-        {
-            await MathJax.typesetPromise();
-        }
-        catch(e)
-        {
-            console.log(e);
-        }
     }
     
     end()
@@ -527,6 +519,14 @@ class Textarea{
         messages.messages[messages.messages.length-1].content = answer_stream.answer_set;
         console.log(answer_stream.answer_set);
         answer_stream.end();
+        try
+        {
+            await MathJax.typesetPromise();
+        }
+        catch(e)
+        {
+            console.log(e);
+        }
     }
 
     async send_message()
