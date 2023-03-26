@@ -511,7 +511,7 @@ class Textarea{
         if (device_width >= 800) this.$target.select();
     }
 
-    end_stream()
+    async end_stream()
     {
         this.$target.value = "";
         this.unlock();
