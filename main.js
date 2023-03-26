@@ -130,6 +130,7 @@ function process_inline(message)
     for (var i=0; i < splitted_inline.length - 1; i+=2)
     {
         if (splitted_inline[i+1] === "") return message;
+        splitted_inline[i] = splitted_inline[i].replace(/$/g, "\\$");
         result_inline += `${splitted_inline[i]}<span class="block_inline">\`</span><span><code>${splitted_inline[i+1]}</code></span><span class="block_inline">\`</span>`;
     }
     if (splitted_inline.length % 2)
@@ -228,7 +229,7 @@ class Messages{
         localStorage.setItem("thread_temp", "[]");
         this.messages = [{role: "user", content: ""}];
         this.message_objects = [new Message("", "user")];
-        this.system_message = {role: "system", content: "If your answer contains code blocks, you should specify their language in them. If your answer contains mathematical expressions, you should use LaTeX expressions. Note that you should use `\$` if your answer contains inline LaTeX expressions."};
+        this.system_message = {role: "system", content: "If your answer contains code blocks, you should specify their language in them. If your answer contains mathematical expressions, you should use LaTeX expressions."};
     }
 
     push_message(elem, reload_mode=false)
