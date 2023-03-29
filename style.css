@@ -258,3 +258,9 @@ div.howtouse{
     right: 0px;
     top: 0px;
 }
+
+div.title_wrapper.extended{
+    width: 100% !important;
+    background-color: white;
+    z-index: 2100000;
+}
