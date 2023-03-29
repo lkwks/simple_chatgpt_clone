@@ -259,8 +259,10 @@ div.howtouse{
     top: 0px;
 }
 
-div.title_wrapper.extended{
+.extended{
     width: 100% !important;
     background-color: white;
+    border: 1px solid black;
+    position: absolute;
     z-index: 2100000;
 }
