@@ -745,7 +745,7 @@ document.body.addEventListener("click", e=>{
         }
     }
 
-    if (e.target === document.querySelector("div.check_title"))
+    if (e.target === document.querySelector("div.title_wrapper"))
         e.target.classList.toggle("extended");
 
     if (e.target.nodeName === "P" && e.target.parentNode.classList.contains("thread_icon"))
