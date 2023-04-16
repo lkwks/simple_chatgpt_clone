@@ -4,7 +4,9 @@ import {ResponseDiv} from "./response_div.js";
 import {Categories} from "./categories.js";
 import {Textarea} from "./textarea.js";
 
-export {post_process, chatgpt_api, sleep, thread, messages, response_div, categories, textarea};
+export {post_process, chatgpt_api, sleep, thread, messages, response_div, categories, textarea, API_KEY};
+
+let API_KEY = localStorage.getItem("API_KEY");
 
 const thread = new Thread();
 const messages = new Messages();
