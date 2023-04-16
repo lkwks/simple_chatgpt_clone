@@ -165,7 +165,7 @@ export class Textarea{
             return;
         }
 
-        this.lock();
+        this.lock(); // 락 걸렸을 때 락 걸린 거 풀고 메시지 생성 중단시키는 버튼 만들고 싶음. 예를 들어 gpt-3.5로 리턴 받다가 끊고 gpt-4로 api를 변경한다든지.
         messages.push_message({role: "user", content: prompt});
         messages.push_message({role: "assistant", content: ""});
         this.$target.value = "Generating...";
@@ -186,7 +186,7 @@ export class Textarea{
                     textarea.end_stream();
                     return;
                 }
-      
+
                 let val;
                 for (var message of messages_buffer)
                    if (message.includes("data: ") && message.includes("[DONE]") === false)
@@ -201,9 +201,13 @@ export class Textarea{
                 if (thread.id === null && messages.sum_of_tokens(0) > 100) 
                     thread.make_title();
                 thread.push({role: "assistant", content: answer_stream.answer_set}, true);
-                
+
                 if (val.choices[0].finish_reason === "length")
                 {
+                    // 여기서 continue를 추가하면 무슨 일이 일어나나?
+                    // continue 메시지 객체가 만들어지고, 그게 메시지 배열에 푸시된다. (render는 안된다.) 
+                    // 그리고 API로 continue 메시지가 보내지고, 그 응답이 stream으로 리턴된다. (위 answer_stream.add_answer 참조)
+                    textarea.end_stream();
                     messages.push_message({role: "user", content: "continue"});
                     textarea.send_message();
                     return;
