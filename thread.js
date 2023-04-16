@@ -1,4 +1,4 @@
-import {messages, chatgpt_api, sleep} from "./common.js";
+import {messages, chatgpt_api, sleep, categories} from "./common.js";
 
 export class Thread{
     constructor()
@@ -22,7 +22,7 @@ that summarizes our conversation so far? Answer in less than five words, in the 
                 document.querySelector("div.thread_title").innerText = this.title;
             }).catch(e=>{console.log(e)});
 
-        this.id = categories.threads.length;        
+        this.id = categories.threads.length;
         
         const filteredArr = categories.categories.filter(el => el !== "");
         await chatgpt_api([...messages.messages, 
