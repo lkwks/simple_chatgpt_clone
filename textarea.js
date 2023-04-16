@@ -1,6 +1,6 @@
 import { Message } from "./message.js";
 import { AnswerStream } from "./answerstream.js";
-import { messages, response_div, textarea, thread, API_KEY } from "./common.js";
+import { messages, response_div, textarea, thread, API_KEY, chatgpt_api } from "./common.js";
 
 const answer_stream = new AnswerStream();
 

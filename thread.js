@@ -1,4 +1,4 @@
-import {messages} from "./common.js";
+import {messages, chatgpt_api, sleep} from "./common.js";
 
 export class Thread{
     constructor()
