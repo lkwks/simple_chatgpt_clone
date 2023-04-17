@@ -8,8 +8,13 @@ document.querySelector("div.categories").classList.add("hide");
 document.body.addEventListener("click", e=>{
     if (e.target.nodeName === "P" && e.target.parentNode.parentNode.classList.contains("response"))
         messages.delete_message(e.target.parentNode);
-    if (e.target === document.querySelector("div.prompt > input") && document.querySelector("div.prompt > textarea").readOnly === false)
-        textarea.send_message();
+    if (e.target === document.querySelector("div.prompt > input"))
+    {
+        if (document.querySelector("div.prompt > textarea").readOnly === false)
+            textarea.send_message();
+        else
+            textarea.end_stream();
+    }
 
     if (e.target === document.querySelector("div.title > button.categories"))
         document.querySelector("div.categories").classList.toggle("hide");

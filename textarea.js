@@ -1,8 +1,10 @@
 import { Message } from "./message.js";
 import { AnswerStream } from "./answerstream.js";
+import { SubmitButton } from "./submit_button.js";
 import { messages, response_div, textarea, thread, API_KEY, chatgpt_api } from "./common.js";
 
 const answer_stream = new AnswerStream();
+const submit_button = new SubmitButton(document.querySelector("div.prompt > input"));
 
 export class Textarea{
     constructor($target)
@@ -111,12 +113,14 @@ export class Textarea{
     {
         this.$target.readOnly = true;
         this.$target.classList.add("readOnly");
+        submit_button.$target.value = "STOP";
     }
 
     unlock()
     {
         this.$target.readOnly = false;
         this.$target.classList.remove("readOnly");
+        submit_button.$target.value = "SEND";
     }
 
     focus()
