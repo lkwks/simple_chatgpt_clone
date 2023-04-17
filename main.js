@@ -13,7 +13,7 @@ document.body.addEventListener("click", e=>{
         if (document.querySelector("div.prompt > textarea").readOnly === false)
             textarea.send_message();
         else
-            textarea.end_stream();
+            textarea.stop_stream = true;
     }
 
     if (e.target === document.querySelector("div.title > button.categories"))

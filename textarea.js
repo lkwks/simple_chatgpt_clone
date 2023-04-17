@@ -10,6 +10,7 @@ export class Textarea{
     constructor($target)
     {
         this.$target = $target;
+        this.stop_stream = false;
     }
 
     process_command(prompt)
@@ -114,6 +115,7 @@ export class Textarea{
         this.$target.readOnly = true;
         this.$target.classList.add("readOnly");
         submit_button.$target.value = "STOP";
+        this.stop_stream = false;
     }
 
     unlock()
@@ -185,7 +187,7 @@ export class Textarea{
                   
                 var messages_buffer = buffer.split('\n\n')
                 buffer = messages_buffer.pop();
-                if (messages_buffer.length === 0) 
+                if (messages_buffer.length === 0 || textarea.stop_stream) 
                 {
                     textarea.end_stream();
                     return;
