@@ -7,7 +7,7 @@ export class ModelOption {
     }
 
     select(model, token) {
-        this.$target.querySelector(`button[id="${this.model}"]`).classList.remove("selected");
+        if (this.model !== "") this.$target.querySelector(`button[id="${this.model}"]`).classList.remove("selected");
         this.model = model;
         this.token = token;
         this.$target.querySelector(`button[id="${this.model}"]`).classList.add("selected");
