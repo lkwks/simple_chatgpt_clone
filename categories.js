@@ -79,11 +79,10 @@ export class Categories{
     show_threads(category_id)
     {
         this.$target.querySelector("div.categories_content").innerHTML = "";
-
-        this.threads.forEach((elem, i) => {
-            if (elem && (parseInt(elem.category_id) === parseInt(category_id) || parseInt(category_id) === -1))
-                this.$target.querySelector("div.categories_content").appendChild(this.render_icon("thread", elem.title, i));
-        });
+        for (var i=this.threads.length-1; i>=0; i--) {
+            if (this.threads[i] && (parseInt(this.threads[i].category_id) === parseInt(category_id) || parseInt(category_id) === -1))
+                this.$target.querySelector("div.categories_content").appendChild(this.render_icon("thread", this.threads[i].title, i));
+        }
     }
 
     load_thread(thread_id)

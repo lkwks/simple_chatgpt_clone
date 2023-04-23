@@ -1,4 +1,4 @@
-import { messages, textarea, categories, API_KEY } from "./common.js";
+import { messages, textarea, categories, model_option, API_KEY } from "./common.js";
 
 if (API_KEY && API_KEY !== "null") document.querySelector("div.API_KEY").classList.add("hide");
 
@@ -6,6 +6,9 @@ document.getElementById("prompt").select();
 document.querySelector("div.categories").classList.add("hide");
 
 document.body.addEventListener("click", e=>{
+    if (e.target.parentNode.classList.contains("model_option"))
+        model_option.select(e.target.id, parseInt(e.target.getAttribute("token")));
+
     if (e.target.nodeName === "P" && e.target.parentNode.parentNode.classList.contains("response"))
         messages.delete_message(e.target.parentNode);
     if (e.target === document.querySelector("div.prompt > input"))

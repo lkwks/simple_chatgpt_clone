@@ -196,6 +196,7 @@ div.categories_wrapper{
     min-height: 50%;
     width: 100%;
     overflow-y: auto;
+    align-items: flex-start;
 }
 
 div.categories_content{
@@ -233,7 +234,7 @@ div.thread_icon:hover{
     background-color: #ddd;
 }
 
-.clicked{
+.clicked, div.model_option > button.selected {
     border: 1px solid red !important;
 }
 
