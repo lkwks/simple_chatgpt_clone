@@ -1,7 +1,7 @@
 import { Message } from "./message.js";
 import { AnswerStream } from "./answerstream.js";
 import { SubmitButton } from "./submit_button.js";
-import { messages, response_div, textarea, thread, API_KEY, chatgpt_api } from "./common.js";
+import { messages, response_div, textarea, thread, API_KEY, chatgpt_api, model_option } from "./common.js";
 
 const answer_stream = new AnswerStream();
 const submit_button = new SubmitButton(document.querySelector("div.prompt > input"));
@@ -67,37 +67,6 @@ export class Textarea{
             }
             command_parameter.shift();
             command_parameter = command_parameter.join(" ");
-        }
-        if (command == "/model" && command_parameter)
-        {
-            if (splitted[0] === "--show")
-            {
-                command_message = "Current model";
-                command_parameter = localStorage.getItem("model");
-            }
-            else
-            {
-                command_message = "Model changed";
-                localStorage.setItem("model", command_parameter);
-           }
-        }
-        if (command == "/max_token" && command_parameter)
-        {
-            if (splitted[0] === "--show")
-            {
-                command_message = "Current maximum token you receive";
-                command_parameter = localStorage.getItem("max_token");
-            }
-            else 
-            {
-                if(parseInt(command_parameter))
-                {
-                    command_message = "Maximum token you recieve changed";
-                    localStorage.setItem("max_token", command_parameter);
-                }
-                else
-                    command_message = "Maximum token change failed"    
-            }
         }
         if (command == "/t")
         {
@@ -165,7 +134,7 @@ export class Textarea{
             else
                 prompt = "continue";
         }
-        if (prompt.split(" ").length * 5 > 3072) 
+        if (prompt.split(" ").length * 5 > model_option.token - 1024) 
         {
             alert("메시지가 너무 깁니다.");
             return;

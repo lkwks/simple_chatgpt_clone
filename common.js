@@ -110,7 +110,7 @@ async function chatgpt_api(messages, stream_mode=false)
             "Authorization": `Bearer ${localStorage.getItem("API_KEY")}`
         }
     };
-    let body_param = {model: localStorage.getItem("model"), messages: messages};
+    let body_param = {model: model_option.model, messages: messages};
 
     if (stream_mode) 
     {
