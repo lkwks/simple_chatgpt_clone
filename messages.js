@@ -1,5 +1,5 @@
 import { Message } from "./message.js";
-import { response_div, thread } from "./common.js";
+import { response_div, thread, model_option } from "./common.js";
 
 export class Messages{
     constructor()
@@ -12,12 +12,6 @@ export class Messages{
 
     reset()
     {
-        let model = localStorage.getItem("model");
-        if (!model || model === "null") localStorage.setItem("model", "gpt-3.5-turbo");
-        
-        let max_token = localStorage.getItem("max_token");
-        if (!max_token || max_token === "null") localStorage.setItem("max_token", "4096");
-
         document.querySelector("div.response").innerHTML = "";
                 
         localStorage.setItem("thread_temp", "[]");
@@ -55,7 +49,7 @@ export class Messages{
     {
         let cutIndex = 0, now_count = 0;
         const token_sum = this.sum_of_tokens(0);
-        const bucket_size = parseInt(localStorage.getItem("max_token")) - 1024;
+        const bucket_size = model_option.token - 1024;
 
         if (token_sum < bucket_size) return;
     
