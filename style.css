@@ -64,10 +64,13 @@ div.categories{
     width: 100%;
 }
 
+div.model.option > button {
+    margin: 5px;
+}
+
 div.prompt{
     height: 50px;
     flex-direction: row;
-    margin-top: 10px;
 }
 
 textarea{
