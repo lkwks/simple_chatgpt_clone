@@ -1,8 +1,10 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css");
+
 pre{
     white-space: pre-wrap;
     margin: 0px;
     line-height: 1.4;
-    font-family: auto;
+    font-family: inherit;
     width: 100%;
 }
 
@@ -10,6 +12,7 @@ body, main, div{
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: 'Pretendard';
 }
 
 body{
