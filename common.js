@@ -81,9 +81,12 @@ function post_process(DOMelem, message, system_message="") {
     if (html.childElementCount > 1) {
         let lastIdx = answer_stream.answer_set.lastIndexOf(html.lastChild.textContent);
         let remain = answer_stream.answer_set.substring(0, lastIdx);
+        console.log(answer_stream.answer_set);
+        console.log(remain);
         if (answer_stream.answer_set !== remain) {
             // DOMelem의 마지막 자식은 텍스트 스트림이 일어나고 있었던 엘리먼트.
             // html의 자식 엘리먼트가 둘 이상이란 이야기는, DOMelem의 기존 마지막 자식에 관한 스트림이 끝났단 이야기. 기존 미완성품 지워줘야.
+            console.log(DOMelem.lastChild);
             DOMelem.removeChild(DOMelem.lastChild);
 
             // answer_stream.answer_set에서는 이미 엘리먼트가 다 완성된 부분의 텍스트를 지워준다.
