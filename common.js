@@ -61,7 +61,7 @@ function process_inline(message)
 // stream으로 응답 받은 메시지가 DOM 엘리먼트에 담겨서 이 함수의 인자로 들어왔을 때, 
 // 그 메시지 안 내용 중 코드블럭이 있다면 그 코드블럭을 렌더링해주는 함수.
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
-// 더불어, answer_stream.answer_set의 내용도 적당히 지워준다.
+// 더불어, answer_stream.answer_buffer 내용도 적당히 지워준다.
 function post_process(DOMelem, message, system_message="") {
     let result = ""; 
     message = message.trim();
@@ -77,22 +77,22 @@ function post_process(DOMelem, message, system_message="") {
     console.log(message);
     console.log(html.innerHTML);
 
-    // html(answer_stream.answer_set을 마크다운 포매팅)의 자식 엘리먼트가 둘 이상인 경우.
+    // html(answer_stream.answer_buffer을 마크다운 포매팅)의 자식 엘리먼트가 둘 이상인 경우.
     if (html.childElementCount > 1) {
         console.log(html.lastChild.textContent);
-        let lastIdx = answer_stream.answer_set.lastIndexOf(html.lastChild.textContent.trim());
-        let remain = answer_stream.answer_set.substring(0, lastIdx);
-        console.log(answer_stream.answer_set);
+        let lastIdx = answer_stream.answer_buffer.lastIndexOf(html.lastChild.textContent.trim());
+        let remain = answer_stream.answer_buffer.substring(0, lastIdx);
+        console.log(answer_stream.answer_buffer);
         console.log(remain);
-        if (answer_stream.answer_set !== remain) {
+        if (answer_stream.answer_buffer !== remain && answer_stream.answer_buffer.split("```").length % 2 !== 0 && answer_stream.answer_buffer.split("```")[0].split("`").length % 2 !== 0) {
             // DOMelem의 마지막 자식은 텍스트 스트림이 일어나고 있었던 엘리먼트.
             // html의 자식 엘리먼트가 둘 이상이란 이야기는, DOMelem의 기존 마지막 자식에 관한 스트림이 끝났단 이야기. 기존 미완성품 지워줘야.
             console.log(DOMelem.lastChild);
             DOMelem.removeChild(DOMelem.lastChild);
 
-            // answer_stream.answer_set에서는 이미 엘리먼트가 다 완성된 부분의 텍스트를 지워준다.
-            // 이로써 answer_stream.answer_set에는 DOMelem의 마지막 자식 내 텍스트 스트림을 위한 텍스트만 남는다.
-            answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
+            // answer_stream.answer_buffer에서는 이미 엘리먼트가 다 완성된 부분의 텍스트를 지워준다.
+            // 이로써 answer_stream.answer_buffer에는 DOMelem의 마지막 자식 내 텍스트 스트림을 위한 텍스트만 남는다.
+            answer_stream.answer_buffer = answer_stream.answer_buffer.replace(remain, "");
 
             html.childNodes.forEach(el => {
                 console.log(el);
