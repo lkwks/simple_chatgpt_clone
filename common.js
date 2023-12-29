@@ -69,36 +69,15 @@ function post_process(DOMelem, message, system_message="") {
 
     if (system_message)
         message = `\`${system_message}\` "${message}"`;
-    
-    var markdown_converter = new showdown.Converter();
-    var html = document.createElement("p");
-    html.innerHTML = markdown_converter.makeHtml(message);
-    console.log(message);
-    console.log(html.innerHTML);
 
-    // html(answer_stream.answer_buffer을 마크다운 포매팅)의 자식 엘리먼트가 둘 이상인 경우.
-    if (html.childElementCount > 1) {
-        let lastIdx = answer_stream.answer_buffer.lastIndexOf(html.lastChild.textContent);
-        let remain = answer_stream.answer_buffer.substring(0, lastIdx);
-        console.log(answer_stream.answer_buffer);
-        console.log(remain);
-        if (answer_stream.answer_buffer !== remain && answer_stream.answer_buffer.split("```").length % 2 !== 0 && answer_stream.answer_buffer.split("```")[0].split("`").length % 2 !== 0) {
-            // DOMelem의 마지막 자식은 텍스트 스트림이 일어나고 있었던 엘리먼트.
-            // html의 자식 엘리먼트가 둘 이상이란 이야기는, DOMelem의 기존 마지막 자식에 관한 스트림이 끝났단 이야기. 기존 미완성품 지워줘야.
-            console.log(DOMelem.lastChild);
-            DOMelem.removeChild(DOMelem.lastChild);
 
-            // answer_stream.answer_buffer에서는 이미 엘리먼트가 다 완성된 부분의 텍스트를 지워준다.
-            // 이로써 answer_stream.answer_buffer에는 DOMelem의 마지막 자식 내 텍스트 스트림을 위한 텍스트만 남는다.
-            answer_stream.answer_buffer = answer_stream.answer_buffer.replace(remain, "");
+    var splitMsg = message.split("\n\n");
+    if (splitMsg.length > 1) {
+        DOMelem.removeChild(DOMelem.lastChild);
+        answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
-            html.childNodes.forEach(el => {
-                console.log(el);
-                if (el.classList)
-                    el.classList.add("tex2jax_process");
-            });
-            DOMelem.innerHTML += html.innerHTML;
-        }
+        var markdown_converter = new showdown.Converter();
+        DOMelem.innerHTML += markdown_converter.makeHtml(message);
     } else if (DOMelem.childElementCount === 1 && html.lastChild) {
         console.log("append one");
         DOMelem.appendChild(html.lastChild);
