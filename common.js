@@ -88,8 +88,8 @@ function post_process(DOMelem, message, system_message="") {
         // 이로써 answer_stream.answer_set에는 DOMelem의 마지막 자식 내 텍스트 스트림을 위한 텍스트만 남는다.
         let lastIdx = answer_stream.answer_set.lastIndexOf(html.lastChild.textContent);
         let remain = answer_stream.answer_set.substring(0, lastIdx);
-        console.log(remain);
-        answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
+        if (answer_stream.answer_set !== remain)
+            answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
 
         html.childNodes.forEach(el => {
             console.log(el);
