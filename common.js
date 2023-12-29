@@ -70,25 +70,30 @@ function post_process(DOMelem, message, system_message="") {
     if (system_message)
         message = `\`${system_message}\` "${message}"`;
 
-    var splitMsg = message.split("\n\n");
-    console.log(splitMsg);
-    if (splitMsg.length > 1) {
-        DOMelem.removeChild(DOMelem.lastChild);
-        answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
-        var markdown_converter = new showdown.Converter();
+    var markdown_converter = new showdown.Converter();
+    var empty_element = document.createElement("p");
+    if (!answer_stream.now_streaming) {
         var html = markdown_converter.makeHtml(message);
-        var html_element = new DOMParser().parseFromString(html, 'text/html').body.lastChild;
-        var empty_element = document.createElement("p");
-        empty_element.innerHTML = splitMsg[splitMsg.length - 1]; 
-        console.log(html_element);
-        DOMelem.appendChild(html_element);
+        var html_element = new DOMParser().parseFromString(html, 'text/html').body;
+        html_element.forEach(el => DOMelem.appendChild(el));
+    } else if (splitMsg.length > 1) {
+        DOMelem.removeChild(DOMelem.lastChild);
+
+        var splitMsg = message.split("\n\n");
+        empty_element.innerHTML = splitMsg[splitMsg.length - 1];
         DOMelem.appendChild(empty_element);
-    } else if (DOMelem.childElementCount > 1) {
+        answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
+
+        splitMsg.pop();
+        var html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
+        var html_element = new DOMParser().parseFromString(html, 'text/html').body;
+        DOMelem.appendChild(html_element.lastChild);
+    } else if (DOMelem.childElementCount > 1)
         DOMelem.lastChild.innerHTML = message;
-    } else {
-        var pElement = document.createElement("p");
-        pElement.innerHTML = message;
-        DOMelem.appendChild(pElement);
+    else {
+        var empty_element = document.createElement("p");
+        empty_element.innerHTML = message;
+        DOMelem.appendChild(empty_element);
     }
 
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
