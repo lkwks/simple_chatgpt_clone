@@ -73,8 +73,8 @@ function escapeParentheses(msg) {
         }
         else {
             if ((backtickCount === 1 || backtickCount >= 3) && !isCodeBlock) {
-                // 코드블럭 시작 조건: 지금 코드블럭 밖이고, 묶음 내 백틱 개수는 1개 또는 3개 이상이고, 백틱묶음 앞에 공백이 있을 것.
-                if (prev_char === " " || prev_char === "\n") {
+                // 코드블럭 시작 조건: 지금 코드블럭 밖이고, 묶음 내 백틱 개수는 1개 또는 3개 이상이고, 백틱묶음 앞에 "가 없을 것.
+                if (prev_char !== `"`) {
                     isCodeBlock = true;
                     startBacktickCount = backtickCount;
                 } else {
