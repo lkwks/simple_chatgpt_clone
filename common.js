@@ -17,7 +17,6 @@ const categories = new Categories(document.querySelector("div.categories"));
 const textarea = new Textarea(document.querySelector("div.prompt > textarea"));
 const model_option = new ModelOption(document.querySelector("div.model_option"));
 const answer_stream = new AnswerStream();
-var markdown_converter = new showdown.Converter();
 
 function make_codeblock(splitted1, splitted2)
 {
@@ -70,6 +69,7 @@ function post_process(DOMelem, message, system_message="") {
     if (system_message)
         message = `\`${system_message}\` "${message}"`;
     
+    var markdown_converter = new showdown.Converter();
     var html = markdown_converter.makeHtml(message);
 
     if (html.childElementCount > 1) {
