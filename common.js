@@ -87,7 +87,10 @@ function post_process(DOMelem, message, system_message="") {
         var html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
         console.log(html_element.outerHTML);
-        html_element.childNodes.forEach(el => DOMelem.appendChild(el));
+        html_element.childNodes.forEach(el => {
+            el.classList.add("tex2jax_process");
+            DOMelem.appendChild(el)
+        });
         DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1)
         DOMelem.lastChild.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
