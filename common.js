@@ -76,8 +76,10 @@ function post_process(DOMelem, message, system_message="") {
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
         var markdown_converter = new showdown.Converter();
         var html = markdown_converter.makeHtml(message);
-        console.log(html);
-        DOMelem.appendChild(new DOMParser().parseFromString(html, 'text/html'));
+        var html_element = document.createElement("div");
+        html_element.innerHTML = html;
+        console.log(new DOMParser().parseFromString(html, 'text/html'));
+        DOMelem.appendChild(html_element.lastChild);
     } else if (DOMelem.childElementCount > 1) {
         DOMelem.lastChild.innerHTML = message;
     } else {
