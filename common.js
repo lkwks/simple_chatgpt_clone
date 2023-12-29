@@ -64,7 +64,6 @@ function process_inline(message)
 // 더불어, answer_stream.answer_buffer 내용도 적당히 지워준다.
 function post_process(DOMelem, message, system_message="") {
     let result = ""; 
-    message = message.trim();
     if (message.endsWith("\n-"))
         message = message.substring(0, message.length - 2);
 
