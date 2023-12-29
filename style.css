@@ -110,9 +110,9 @@ div.response{
     display: block;
 }
 
-div.user, div.response {
+div.user, div.assistant {
     flex-direction: column;
-    align-itmes: flex-start;
+    align-items: flex-start;
 }
 
 div.response > * {
