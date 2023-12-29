@@ -55,7 +55,37 @@ function process_inline(message)
     return result_inline;
 }
 
+// 하나 또는 셋 이상의 백틱으로 둘러싸인 안쪽 문자열 외에 그 바깥의 모든 문자열에 대해 \(, \[, \), \]가 있다면 이스케이프를 추가하는 코드가 필요. 이를 LaTex 처리를 위한 문자로 지정했는데 문자열을 이런 이스케이프 없이 마크다운 처리기에 넣었더니 그냥 (, [를 위한 이스케이프로 처리하기 때문.
+function escapeParentheses(msg) {
+    let codeBlockDepth = 0;
+    let backtickCount = 0;
+    let output = '';
 
+    for (const char of str) {
+        if (char === '`') {
+            backtickCount++;
+            if (codeBlockDepth === 0 || backtickCount >= 3)
+                codeBlockDepth += backtickCount;
+        } else {
+            if (backtickCount > 0) {
+                if (codeBlockDepth > 0)
+                    codeBlockDepth -= backtickCount;
+                backtickCount = 0;
+            }
+
+            if (codeBlockDepth > 0)
+                output += char;
+            else {
+                if (['(', ')', '[', ']'].includes(char))
+                    output += '\\' + char;
+                else
+                    output += char;
+            }
+        }
+    }
+
+    return output;
+}
 
 
 // stream으로 응답 받은 메시지가 DOM 엘리먼트에 담겨서 이 함수의 인자로 들어왔을 때, 
@@ -66,11 +96,6 @@ function post_process(DOMelem, message, system_message="") {
     let result = ""; 
     if (message.endsWith("\n-"))
         message = message.substring(0, message.length - 2);
-
-    message = message.replace(/\(/g, '\\(')
-              .replace(/\[/g, '\\[')
-              .replace(/\)/g, '\\)')
-              .replace(/\]/g, '\\]');
 
     if (system_message)
         message = `\`${system_message}\` "${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`;
@@ -89,17 +114,17 @@ function post_process(DOMelem, message, system_message="") {
         */
         if (!msg.includes("```")) {
             if (!prev_msg)
-                splitMsg.push(msg);
+                splitMsg.push(escapeParentheses(msg));
             else
                 prev_msg += msg;
         } else {
             if (!prev_msg) {
-                if ((msg + " ").split("```").length > 2)
-                    splitMsg.push(msg);
+                if (/`{3,}$/.test(msg))
+                    splitMsg.push(escapeParentheses(msg));
                 else
                     prev_msg = msg;
             } else {
-                splitMsg.push(prev_msg + msg);
+                splitMsg.push(escapeParentheses(prev_msg + msg));
                 prev_msg = "";
             }
         }
