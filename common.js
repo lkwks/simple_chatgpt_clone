@@ -71,8 +71,8 @@ function post_process(DOMelem, message, system_message="") {
         message = `\`${system_message}\` "${message}"`;
 
     var markdown_converter = new showdown.Converter();
-    var empty_element = document.createElement("p");
     var splitMsg = message.split("\n\n");
+    console.log(splitMsg);
     if (!answer_stream.now_streaming) {
         var html = markdown_converter.makeHtml(message);
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
@@ -80,7 +80,9 @@ function post_process(DOMelem, message, system_message="") {
     } else if (splitMsg.length > 1) {
         DOMelem.removeChild(DOMelem.lastChild);
 
+        var empty_element = document.createElement("p");
         empty_element.innerHTML = splitMsg[splitMsg.length - 1];
+        console.log(empty_element);
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
         splitMsg.pop();
@@ -92,7 +94,7 @@ function post_process(DOMelem, message, system_message="") {
     } else if (DOMelem.childElementCount > 1)
         DOMelem.lastChild.innerHTML = message;
     else {
-        var empty_element = document.createElement("p");
+        var empty_element = document.createElement("pre");
         empty_element.innerHTML = message;
         DOMelem.appendChild(empty_element);
     }
