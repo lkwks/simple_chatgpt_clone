@@ -70,7 +70,6 @@ function post_process(DOMelem, message, system_message="") {
     if (system_message)
         message = `\`${system_message}\` "${message}"`;
 
-
     var splitMsg = message.split("\n\n");
     if (splitMsg.length > 1) {
         DOMelem.removeChild(DOMelem.lastChild);
@@ -78,13 +77,12 @@ function post_process(DOMelem, message, system_message="") {
 
         var markdown_converter = new showdown.Converter();
         DOMelem.innerHTML += markdown_converter.makeHtml(message);
-    } else if (DOMelem.childElementCount === 1 && html.lastChild) {
-        console.log("append one");
-        DOMelem.appendChild(html.lastChild);
-    } else if (html.lastChild) {
-        DOMelem.lastChild.innerHTML = html.lastChild.innerHTML;
+    } else if (DOMelem.childElementCount > 1) {
+        DOMelem.lastChild.innerHTML = message;
     } else {
-        DOMelem.appendChild(html);
+        var pElement = document.createElement("p");
+        pElement.innerHTML = message;
+        DOMelem.appendChild(pElement);
     }
 
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
