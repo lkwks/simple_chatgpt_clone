@@ -5,6 +5,7 @@ export class AnswerStream{
     {
         this.now_streaming = false;
         this.answer_set = "";
+        this.answer_buffer = "";
         this.signal = false;
     }
     
@@ -13,6 +14,7 @@ export class AnswerStream{
         if (this.now_streaming === false)
         {
             this.answer_set = "";
+            this.answer_buffer = "";
             this.now_streaming = true;
             this.signal = false;
         }
@@ -21,7 +23,8 @@ export class AnswerStream{
     async add_answer(answer)
     {
         this.answer_set += answer;
-        post_process(response_div.$target.lastChild, this.answer_set);
+        this.answer_buffer += answer;
+        post_process(response_div.$target.lastChild, this.answer_buffer);
     }
     
     end()
