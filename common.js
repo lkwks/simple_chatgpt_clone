@@ -75,7 +75,8 @@ function post_process(DOMelem, message, system_message="") {
 
     if (html.childElementCount > 1) {
         let remain = answer_stream.answer_set.replace(html.lastChild.textContent, "");
-        console.log(answer_stream.answer_set, html.lastChild.textContent);
+        console.log("a", answer_stream.answer_set);
+        console.log("b", html.lastChild.textContent);
         answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
         DOMelem.removeChild(DOMelem.lastChild);
         html.childNodes.forEach(el => {
