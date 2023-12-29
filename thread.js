@@ -47,17 +47,21 @@ Answer in this format: "The index of the category: {number}"`
 
 
     // 스레드 이동했을 때 싹 비우고 로컬 스토리지에 있었던 메시지를 하나씩 불러오는 코드
-    async load_thread(thread_id)
-    {
+    async load_thread(thread_id) {
         messages.reset();
 
         const thread_temp = JSON.parse(localStorage.getItem(`thread_${thread_id}`));
         this.id = thread_id;
-        for (var elem of thread_temp)
-        {
+        for (var elem of thread_temp) {
             messages.push_message(elem, true);
             await sleep(10);
         }
+
+        try {
+            await MathJax.typesetPromise();
+        } catch(e) {
+            console.log(e);
+        }    
     }
 
     // localStorage의 thread_{num}을 계속 업데이트 하는 코드
