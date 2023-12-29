@@ -157,6 +157,7 @@ function post_process(DOMelem, message, system_message="") {
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
         html_element.childNodes.forEach(el => {
             el.classList.add("tex2jax_process");
+            el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
             DOMelem.appendChild(el)
         });
         DOMelem.appendChild(empty_element);
