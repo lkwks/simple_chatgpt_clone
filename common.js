@@ -5,7 +5,6 @@ import {Categories} from "./categories.js";
 import {Textarea} from "./textarea.js";
 import {ModelOption} from "./model_option.js";
 import {AnswerStream} from "./answerstream.js";
-import {showdown} from "./showdown.min.js";
 
 export {post_process, chatgpt_api, sleep, thread, messages, response_div, categories, textarea, API_KEY, model_option, answer_stream};
 
