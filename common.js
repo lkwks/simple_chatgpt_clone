@@ -68,7 +68,7 @@ function post_process(DOMelem, message, system_message="") {
         message = message.substring(0, message.length - 2);
 
     if (system_message)
-        message = `\`${system_message}\` "${message}"`;
+        message = `\`${system_message}\` "${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`;
 
     var markdown_converter = new showdown.Converter();
     var splitMsg = message.split("\n\n");
@@ -90,9 +90,9 @@ function post_process(DOMelem, message, system_message="") {
         html_element.childNodes.forEach(el => DOMelem.appendChild(el));
         DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1)
-        DOMelem.lastChild.innerHTML = message;
+        DOMelem.lastChild.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     else {
-        empty_element.innerHTML = message;
+        empty_element.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         DOMelem.appendChild(empty_element);
     }
 
