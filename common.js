@@ -71,10 +71,13 @@ function post_process(DOMelem, message, system_message="") {
         message = `\`${system_message}\` "${message}"`;
 
     var splitMsg = message.split("\n\n");
+    console.log(splitMsg);
     if (splitMsg.length > 1) {
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
         var markdown_converter = new showdown.Converter();
-        DOMelem.innerHTML += markdown_converter.makeHtml(message);
+        var html = markdown_converter.makeHtml(message);
+        console.log(html);
+        DOMelem.innerHTML += html;
     } else if (DOMelem.childElementCount > 1) {
         DOMelem.lastChild.innerHTML = message;
     } else {
