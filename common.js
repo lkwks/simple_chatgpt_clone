@@ -57,31 +57,42 @@ function process_inline(message)
 
 // 하나 또는 셋 이상의 백틱으로 둘러싸인 안쪽 문자열 외에 그 바깥의 모든 문자열에 대해 \(, \[, \), \]가 있다면 이스케이프를 추가하는 코드가 필요. 이를 LaTex 처리를 위한 문자로 지정했는데 문자열을 이런 이스케이프 없이 마크다운 처리기에 넣었더니 그냥 (, [를 위한 이스케이프로 처리하기 때문.
 function escapeParentheses(msg) {
-    let codeBlockDepth = 0;
+    let isCodeBlock = false;
     let backtickCount = 0;
+    let startBacktickCount = 0;
     let output = '';
+    let prev_char = '';
 
-    for (const char of msg) {
+    for (let i = 0; i < msg.length; i++) {
+        const char = msg[i];
+
         if (char === '`') {
             backtickCount++;
-            if (codeBlockDepth === 0 || backtickCount >= 3)
-                codeBlockDepth += backtickCount;
-        } else {
-            if (backtickCount > 0) {
-                if (codeBlockDepth > 0)
-                    codeBlockDepth -= backtickCount;
-                backtickCount = 0;
+            if (!isCodeBlock && backtickCount === 1)
+                prev_char = i > 0 ? msg[i - 1] : " ";
+        }
+        else {
+            if ((backtickCount === 1 || backtickCount >= 3) && !isCodeBlock) {
+                // 코드블럭 시작 조건: 지금 코드블럭 밖이고, 묶음 내 백틱 개수는 1개 또는 3개 이상이고, 백틱묶음 앞에 공백이 있을 것.
+                if (prev_char === " " || prev_char === "\n") {
+                    isCodeBlock = true;
+                    startBacktickCount = backtickCount;
+                } else {
+                    output = output.substring(0, output.length - backtickCount) + "\\`".repeat(backtickCount);
+                }
+            } else if (isCodeBlock && backtickCount === startBacktickCount) {
+                // 코드블럭 종료 조건: 가장 최근 백틱 개수가 시작 때 백틱 개수랑 같을 것
+                isCodeBlock = false;
+                startBacktickCount = 0;
             }
 
-            if (codeBlockDepth > 0)
-                output += char;
-            else {
-                if (['(', ')', '[', ']'].includes(char))
-                    output += '\\' + char;
-                else
-                    output += char;
-            }
+            backtickCount = 0;
+
+            if (!isCodeBlock && ['(', ')', '[', ']'].includes(char))
+                output += '\\';
         }
+
+        output += char;
     }
 
     return output;
@@ -105,11 +116,11 @@ function post_process(DOMelem, message, system_message="") {
     for (const msg of message.split("\n\n")) {
         /*
 
-        1. msg에 ```가 없고, prev_msg도 없을 때: 그냥 splitMsg에 넣으면 됨
-        2. msg에 ```가 없지만, prev_msg가 있을 때: 현재 코드블럭 안에 있다는 이야기. prev_msg에 추가해줘야 한다.
-        3. msg에 ```가 있는데, prev_msg가 없을 때: 코드블럭의 시작일 수도 있고, 시작과 끝이 다 들어있을 수 있다.
+        1. msg가 ```로 시작/끝 아니고, prev_msg도 없을 때: 그냥 splitMsg에 넣으면 됨
+        2. msg가 ```로 시작/끝 아니지만, prev_msg가 있을 때: 현재 코드블럭 안에 있다는 이야기. prev_msg에 추가해줘야 한다.
+        3. msg가 ```로 시작/끝인데, prev_msg가 없을 때: 코드블럭의 시작일 수도 있고, 시작과 끝이 다 들어있을 수 있다.
             시작만 한다면 prev_msg를 채워주는 걸로 충분. 시작과 끝이 다 들어 있다면 splitMsg에 넣어야 함.
-        4. msg에 ```가 있고, prev_msg가 있을 때: 확실히 코드블럭의 끝. prev_msg를 비워줘야 한다.
+        4. msg가 ```로 시작/끝이고, prev_msg가 있을 때: 확실히 코드블럭의 끝. prev_msg를 비워줘야 한다.
 
         */
         if (!(/`{3,}$/.test(msg) || /^`{3,}/.test(msg))) {
@@ -141,9 +152,9 @@ function post_process(DOMelem, message, system_message="") {
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
         splitMsg.pop();
+        console.log(splitMsg.join("\n\n"));
         var html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
-        console.log(html_element.outerHTML);
         html_element.childNodes.forEach(el => {
             el.classList.add("tex2jax_process");
             DOMelem.appendChild(el)
