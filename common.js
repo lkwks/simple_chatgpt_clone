@@ -68,7 +68,7 @@ function post_process(DOMelem, message, system_message="") {
     message = message.trim();
 
     if (system_message)
-        message = `\`${system_message}\` "${message}";
+        message = `\`${system_message}\` "${message}"`;
     
     var html = markdown_converter.makeHtml(message);
 
