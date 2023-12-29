@@ -105,6 +105,11 @@ export class Textarea{
         messages.messages[messages.messages.length-1].content = answer_stream.answer_set;
         answer_stream.end();
         console.log(answer_stream.answer_set);
+        try {
+            await MathJax.typesetPromise();
+        } catch(e) {
+            console.log(e);
+        }        
     }
 
     async send_message()
