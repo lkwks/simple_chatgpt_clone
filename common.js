@@ -64,7 +64,7 @@ function process_inline(message)
 // 더불어, answer_stream.answer_set의 내용도 적당히 지워준다.
 function post_process(DOMelem, message, system_message="") {
     let result = ""; 
-    message = message.trim();
+    message = message.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     if (system_message)
         message = `\`${system_message}\` "${message}"`;
