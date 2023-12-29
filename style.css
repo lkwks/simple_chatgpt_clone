@@ -132,7 +132,7 @@ div.system{
     margin-top: 50px;
 }
 
-p{
+p.closing_button {
     position: absolute;
     top:-15px;
     right:0px;
