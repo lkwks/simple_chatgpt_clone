@@ -72,11 +72,12 @@ function post_process(DOMelem, message, system_message="") {
     var markdown_converter = new showdown.Converter();
     var html = document.createElement("p");
     html.innerHTML = markdown_converter.makeHtml(message);
-    console.log(DOMelem, html);
+    console.log(DOMelem.innerHTML, html.innerHTML);
 
     if (html.childElementCount > 1) {
         let remain = answer_stream.answer_set.replace(html.lastChild.textContent, "");
         answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
+        console.log("remove", DOMelem.lastChild);
         DOMelem.removeChild(DOMelem.lastChild);
         html.childNodes.forEach(el => {
             el.classList.add("tex2jax_process");
