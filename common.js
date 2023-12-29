@@ -81,13 +81,14 @@ function post_process(DOMelem, message, system_message="") {
         DOMelem.removeChild(DOMelem.lastChild);
 
         empty_element.innerHTML = splitMsg[splitMsg.length - 1];
-        DOMelem.appendChild(empty_element);
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
         splitMsg.pop();
         var html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
+        console.log(html_element);
         DOMelem.appendChild(html_element.lastChild);
+        DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1)
         DOMelem.lastChild.innerHTML = message;
     else {
