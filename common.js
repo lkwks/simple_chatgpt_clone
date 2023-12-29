@@ -72,9 +72,7 @@ function post_process(DOMelem, message, system_message="") {
 
     var splitMsg = message.split("\n\n");
     if (splitMsg.length > 1) {
-        DOMelem.removeChild(DOMelem.lastChild);
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
-
         var markdown_converter = new showdown.Converter();
         DOMelem.innerHTML += markdown_converter.makeHtml(message);
     } else if (DOMelem.childElementCount > 1) {
