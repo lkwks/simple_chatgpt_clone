@@ -65,7 +65,6 @@ function process_inline(message)
 function post_process(DOMelem, message, system_message="") {
     let result = ""; 
     message = message.trim();
-    console.log(answer_stream.answer_set);
 
     if (system_message)
         message = `\`${system_message}\` "${message}"`;
@@ -75,6 +74,7 @@ function post_process(DOMelem, message, system_message="") {
     html.innerHTML = markdown_converter.makeHtml(message);
 
     if (html.childElementCount > 1) {
+        console.log(answer_stream.answer_set);
         let remain = answer_stream.answer_set.replace(html.lastChild.textContent, "");
         answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
         DOMelem.removeChild(DOMelem.lastChild);
