@@ -164,7 +164,7 @@ pre > code{
     border-radius: 10px;
 }
 
-span > code {
+p > code {
     width: fit-content;
     padding: 3px;
     background-color: white;
