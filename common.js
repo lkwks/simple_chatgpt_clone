@@ -77,7 +77,7 @@ function post_process(DOMelem, message, system_message="") {
         var markdown_converter = new showdown.Converter();
         var html = markdown_converter.makeHtml(message);
         console.log(html);
-        DOMelem.innerHTML += html;
+        DOMelem.appendChild(new DOMParser().parseFromString(html, 'text/html'));
     } else if (DOMelem.childElementCount > 1) {
         DOMelem.lastChild.innerHTML = message;
     } else {
