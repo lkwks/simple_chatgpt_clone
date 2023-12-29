@@ -5,6 +5,7 @@ import {Categories} from "./categories.js";
 import {Textarea} from "./textarea.js";
 import {ModelOption} from "./model_option.js";
 import {AnswerStream} from "./answerstream.js";
+import {showdown} from "./showdown.min.js";
 
 export {post_process, chatgpt_api, sleep, thread, messages, response_div, categories, textarea, API_KEY, model_option, answer_stream};
 
@@ -17,7 +18,7 @@ const categories = new Categories(document.querySelector("div.categories"));
 const textarea = new Textarea(document.querySelector("div.prompt > textarea"));
 const model_option = new ModelOption(document.querySelector("div.model_option"));
 const answer_stream = new AnswerStream();
-const markdown_converter = new showdown().Converter();
+const markdown_converter = new showdown.Converter();
 
 function make_codeblock(splitted1, splitted2)
 {
