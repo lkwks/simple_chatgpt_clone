@@ -15,8 +15,9 @@ export class Message{
         new_element.classList.add(class_name);
         new_element.innerHTML = `<p class='closing_button'>x</p>`;
         if (class_name === "user") {
-            const message_element = document.createElement("p");
-            message_element.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+            const message_element = document.createElement("pre");
+            message_element.classList.add("tex2jax_ignore");
+            message_element.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             new_element.appendChild(message_element);
         } else {
             post_process(new_element, message, system_message);
