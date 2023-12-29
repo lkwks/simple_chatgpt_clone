@@ -1,9 +1,7 @@
 import { Message } from "./message.js";
-import { AnswerStream } from "./answerstream.js";
 import { SubmitButton } from "./submit_button.js";
-import { messages, response_div, textarea, thread, API_KEY, chatgpt_api, model_option } from "./common.js";
+import { messages, response_div, textarea, thread, API_KEY, chatgpt_api, model_option, answer_stream } from "./common.js";
 
-const answer_stream = new AnswerStream();
 const submit_button = new SubmitButton(document.querySelector("div.prompt > input"));
 
 export class Textarea{
