@@ -110,6 +110,11 @@ div.response{
     display: block;
 }
 
+div.user, div.response {
+    flex-direction: column;
+    align-itmes: flex-start;
+}
+
 div.response > * {
     width: 90%;
     border: 10px solid;
