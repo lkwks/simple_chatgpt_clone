@@ -73,13 +73,16 @@ function post_process(DOMelem, message, system_message="") {
     var splitMsg = message.split("\n\n");
     console.log(splitMsg);
     if (splitMsg.length > 1) {
+        DOMelem.removeChild(DOMelem.lastChild);
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
         var markdown_converter = new showdown.Converter();
         var html = markdown_converter.makeHtml(message);
-        var html_element = document.createElement("div");
-        html_element.innerHTML = html;
-        console.log(new DOMParser().parseFromString(html, 'text/html'));
-        DOMelem.appendChild(html_element.lastChild);
+        var html_element = new DOMParser().parseFromString(html, 'text/html').body.lastChild;
+        var empty_element = document.createElement("p");
+        empty_element.innerHTML = splitMsg[splitMsg.length - 1]; 
+        console.log(html_element);
+        DOMelem.appendChild(html_element);
+        DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1) {
         DOMelem.lastChild.innerHTML = message;
     } else {
