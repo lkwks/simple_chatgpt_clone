@@ -20,7 +20,7 @@ export class AnswerStream{
     
     async add_answer(answer)
     {
-        this.answer_set += answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        this.answer_set += answer;
         post_process(response_div.$target.lastChild, this.answer_set);
     }
     
