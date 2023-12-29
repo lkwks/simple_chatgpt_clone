@@ -65,6 +65,7 @@ function process_inline(message)
 function post_process(DOMelem, message, system_message="") {
     let result = ""; 
     message = message.trim();
+    console.log(answer_stream.answer_set);
 
     if (system_message)
         message = `\`${system_message}\` "${message}"`;
@@ -72,11 +73,9 @@ function post_process(DOMelem, message, system_message="") {
     var markdown_converter = new showdown.Converter();
     var html = document.createElement("p");
     html.innerHTML = markdown_converter.makeHtml(message);
-    // console.log(DOMelem.innerHTML, html.innerHTML);
 
     if (html.childElementCount > 1) {
         let remain = answer_stream.answer_set.replace(html.lastChild.textContent, "");
-        console.log(remain);
         answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
         DOMelem.removeChild(DOMelem.lastChild);
         html.childNodes.forEach(el => {
