@@ -82,7 +82,8 @@ function post_process(DOMelem, message, system_message="") {
         // answer_stream.answer_set에서는 이미 엘리먼트가 다 완성된 부분의 텍스트를 지워준다.
         // 이로써 answer_stream.answer_set에는 DOMelem의 마지막 자식 내 텍스트 스트림을 위한 텍스트만 남는다.
         let lastIdx = answer_stream.answer_set.lastIndexOf(html.lastChild.textContent);
-        answer_stream.answer_set = answer_stream.answer_set.substring(0, lastIdx);
+        let remian = answer_stream.answer_set.substring(0, lastIdx);
+        answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
 
         html.childNodes.forEach(el => {
             el.classList.add("tex2jax_process");
