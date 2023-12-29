@@ -72,6 +72,7 @@ function post_process(DOMelem, message, system_message="") {
     var markdown_converter = new showdown.Converter();
     var html = document.createElement("p");
     html.innerHTML = markdown_converter.makeHtml(message);
+    console.log(message);
     console.log(html.innerHTML);
 
     // html(answer_stream.answer_set을 마크다운 포매팅)의 자식 엘리먼트가 둘 이상인 경우.
