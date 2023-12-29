@@ -61,7 +61,7 @@ function escapeParentheses(msg) {
     let backtickCount = 0;
     let output = '';
 
-    for (const char of str) {
+    for (const char of msg) {
         if (char === '`') {
             backtickCount++;
             if (codeBlockDepth === 0 || backtickCount >= 3)
