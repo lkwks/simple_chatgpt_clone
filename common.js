@@ -72,7 +72,7 @@ function post_process(DOMelem, message, system_message="") {
 
     var markdown_converter = new showdown.Converter();
     var splitMsg = message.split("\n\n");
-    console.log(splitMsg);
+    console.log(JSON.stringify(splitMsg));
     if (!answer_stream.now_streaming) {
         var html = markdown_converter.makeHtml(message);
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
@@ -82,7 +82,7 @@ function post_process(DOMelem, message, system_message="") {
 
         var empty_element = document.createElement("p");
         empty_element.innerHTML = splitMsg[splitMsg.length - 1];
-        console.log(empty_element);
+        console.log(empty_element.outerHTML);
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
         splitMsg.pop();
