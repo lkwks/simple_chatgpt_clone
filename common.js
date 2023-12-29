@@ -72,6 +72,7 @@ function post_process(DOMelem, message, system_message="") {
 
     var markdown_converter = new showdown.Converter();
     var empty_element = document.createElement("p");
+    var splitMsg = message.split("\n\n");
     if (!answer_stream.now_streaming) {
         var html = markdown_converter.makeHtml(message);
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
@@ -79,7 +80,6 @@ function post_process(DOMelem, message, system_message="") {
     } else if (splitMsg.length > 1) {
         DOMelem.removeChild(DOMelem.lastChild);
 
-        var splitMsg = message.split("\n\n");
         empty_element.innerHTML = splitMsg[splitMsg.length - 1];
         DOMelem.appendChild(empty_element);
         answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
