@@ -98,22 +98,13 @@ export class Textarea{
         if (device_width >= 800) this.$target.select();
     }
 
-    async end_stream()
-    {
+    async end_stream() {
         this.$target.value = "";
         this.unlock();
         this.focus();
         messages.messages[messages.messages.length-1].content = answer_stream.answer_set;
-        console.log(answer_stream.answer_set);
         answer_stream.end();
-        try
-        {
-            await MathJax.typesetPromise();
-        }
-        catch(e)
-        {
-            console.log(e);
-        }
+        console.log(answer_stream.answer_set);
     }
 
     async send_message()
