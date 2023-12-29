@@ -67,11 +67,29 @@ function post_process(DOMelem, message, system_message="") {
     if (message.endsWith("\n-"))
         message = message.substring(0, message.length - 2);
 
+    message = message.replace(/\(/g, '\\(')
+              .replace(/\[/g, '\\[')
+              .replace(/\)/g, '\\)')
+              .replace(/\]/g, '\\]');
+
     if (system_message)
         message = `\`${system_message}\` "${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`;
 
     var markdown_converter = new showdown.Converter();
-    var splitMsg = message.split("\n\n");
+    var splitMsg = [], prev_msg = "";
+    for (const msg of message.split("\n\n")) {
+        if (!msg.includes("```") && !prev_msg) {
+            splitMsg.push(msg);
+        } else if (!msg.includes("```") && prev_msg) {
+            prev_msg += msg;
+        } else {
+            if (!prev_msg) prev_msg = msg;
+            else {
+                splitMsg.push(prev_msg + msg);
+                prev_msg = "";
+            }
+        }
+    }
     var empty_element = document.createElement("pre");
     if (!answer_stream.now_streaming) {
         var html = markdown_converter.makeHtml(message);
