@@ -9,7 +9,7 @@ document.body.addEventListener("click", e=>{
     if (e.target.parentNode.classList.contains("model_option"))
         model_option.select(e.target.id, parseInt(e.target.getAttribute("token")));
 
-    if (e.target.nodeName === "P" && e.target.parentNode.parentNode.classList.contains("response"))
+    if (e.target.nodeName === "P" && e.target.classList.contains("closing_button"))
         messages.delete_message(e.target.parentNode);
     if (e.target === document.querySelector("div.prompt > input"))
     {
