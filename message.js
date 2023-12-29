@@ -14,7 +14,13 @@ export class Message{
         new_element.setAttribute("timestamp", this.timestamp);
         new_element.classList.add(class_name);
         new_element.innerHTML = `<p class='closing_button'>x</p>`;
-        post_process(new_element, message, system_message);
+        if (class_name === "user") {
+            const message_element = document.createElement("p");
+            message_element.innerHTML = message;
+            new_element.appendChild(message_element);
+        } else {
+            post_process(new_element, message, system_message);
+        }
         return new_element;
     }
 }
