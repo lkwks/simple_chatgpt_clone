@@ -79,6 +79,7 @@ function post_process(DOMelem, message, system_message="") {
 
     // html(answer_stream.answer_set을 마크다운 포매팅)의 자식 엘리먼트가 둘 이상인 경우.
     if (html.childElementCount > 1) {
+        console.log(html.lastChild.textContent);
         let lastIdx = answer_stream.answer_set.lastIndexOf(html.lastChild.textContent);
         let remain = answer_stream.answer_set.substring(0, lastIdx);
         console.log(answer_stream.answer_set);
@@ -97,8 +98,8 @@ function post_process(DOMelem, message, system_message="") {
                 console.log(el);
                 if (el.classList)
                     el.classList.add("tex2jax_process");
-                DOMelem.appendChild(el);
-            });    
+            });
+            DOMelem.innerHTML += html.innerHTML;
         }
     } else if (DOMelem.childElementCount === 1 && html.lastChild) {
         console.log("append one");
