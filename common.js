@@ -70,7 +70,9 @@ function post_process(DOMelem, message, system_message="") {
         message = `\`${system_message}\` "${message}"`;
     
     var markdown_converter = new showdown.Converter();
-    var html = markdown_converter.makeHtml(message);
+    var html = document.createElement("p");
+    html.innerHTML = markdown_converter.makeHtml(message);
+    console.log(DOMelem, html);
 
     if (html.childElementCount > 1) {
         let remain = answer_stream.answer_set.replace(html.lastChild.textContent, "");
@@ -80,10 +82,12 @@ function post_process(DOMelem, message, system_message="") {
             el.classList.add("tex2jax_process");
             DOMelem.appendChild(el);
         });
-    } else if (DOMelem.childElementCount === 1) {
+    } else if (DOMelem.childElementCount === 1 && html.lastChild) {
         DOMelem.appendChild(html.lastChild);
-    } else {
+    } else if (html.lastChild) {
         DOMelem.lastChild.innerHTML = html.lastChild.innerHTML;
+    } else {
+        DOMelem.appendChild(html);
     }
 
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
