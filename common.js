@@ -4,8 +4,9 @@ import {ResponseDiv} from "./response_div.js";
 import {Categories} from "./categories.js";
 import {Textarea} from "./textarea.js";
 import {ModelOption} from "./model_option.js";
+import {AnswerStream} from "./answerstream.js";
 
-export {post_process, chatgpt_api, sleep, thread, messages, response_div, categories, textarea, API_KEY, model_option};
+export {post_process, chatgpt_api, sleep, thread, messages, response_div, categories, textarea, API_KEY, model_option, answer_stream};
 
 let API_KEY = localStorage.getItem("API_KEY");
 
@@ -15,6 +16,8 @@ const response_div = new ResponseDiv(document.querySelector("div.response"));
 const categories = new Categories(document.querySelector("div.categories"));
 const textarea = new Textarea(document.querySelector("div.prompt > textarea"));
 const model_option = new ModelOption(document.querySelector("div.model_option"));
+const answer_stream = new AnswerStream();
+const markdown_converter = new showdown.Converter();
 
 function make_codeblock(splitted1, splitted2)
 {
@@ -59,41 +62,30 @@ function process_inline(message)
 // stream으로 응답 받은 메시지가 DOM 엘리먼트에 담겨서 이 함수의 인자로 들어왔을 때, 
 // 그 메시지 안 내용 중 코드블럭이 있다면 그 코드블럭을 렌더링해주는 함수.
 // DOMelem으로는, 메시지가 담긴 <pre> 엘리먼트가 들어온다.
-function post_process(DOMelem, message, system_message="")
-{
-    let result = ""; message = message.trim();
-        
-    if (system_message !== "")
-        result = `${process_inline(`\`${system_message}\``)} "${message}"`;
-    else
-    {
-        let splitted = message.split("```");
+// 더불어, answer_stream.answer_set의 내용도 적당히 지워준다.
+function post_process(DOMelem, message, system_message="") {
+    let result = ""; 
+    let message = message.trim();
 
-        // 아래 for문은 splitted.length가 3 이상일 때만 돌아간다.
-        for (var i=0; i < splitted.length - 2; i+=2)
-        {
-            if (splitted[i+1].startsWith("</span>")) 
-                result += splitted[i] + "```" + splitted[i+1] + "```";
-            else
-                result += make_codeblock(splitted[i], splitted[i+1]);
-        }
+    if (system_message)
+        message = `\`${system_message}\` "${message}";
+    
+    var html = markdown_converter.makeHtml(message);
 
-        // 지금 splitted.length가 짝수냐 홀수냐에 따라 마지막 처리가 달라짐.
-        // 짝수면 두 개 남은 거고, 홀수면 한 개 남은 거.
-        if (splitted.length % 2 === 0)
-        {
-            if (message.endsWith("```"))
-                result += make_codeblock(splitted[splitted.length-2], splitted[splitted.length-1]);
-            else
-                result += process_inline(splitted[splitted.length-2]) + "```" + process_inline(splitted[splitted.length-1]); 
-        }
-        else
-            result += process_inline(splitted[splitted.length-1]);
-
-        // 결과적으로, result는 메시지 내용 중 코드블럭을 렌더링한 결과가 담긴 문자열.  
-
+    if (html.childElementCount > 1) {
+        let remain = answer_stream.answer_set.replace(html.lastChild.textContent, "");
+        answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
+        DOMelem.removeChild(DOMelem.lastChild);
+        html.childNodes.forEach(el => {
+            el.classList.add("tex2jax_process");
+            DOMelem.appendChild(el);
+        });
+    } else if (DOMelem.childElementCount === 1) {
+        DOMelem.appendChild(html.lastChild);
+    } else {
+        DOMelem.lastChild.innerHTML = html.lastChild.innerHTML;
     }
-    DOMelem.innerHTML = `<pre class="tex2jax_process">${result}</pre><p>x</p>`;
+
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
         if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
     });
