@@ -78,13 +78,27 @@ function post_process(DOMelem, message, system_message="") {
     var markdown_converter = new showdown.Converter();
     var splitMsg = [], prev_msg = "";
     for (const msg of message.split("\n\n")) {
-        if (!msg.includes("```") && !prev_msg) {
-            splitMsg.push(msg);
-        } else if (!msg.includes("```") && prev_msg) {
-            prev_msg += msg;
+        /*
+
+        1. msg에 ```가 없고, prev_msg도 없을 때: 그냥 splitMsg에 넣으면 됨
+        2. msg에 ```가 없지만, prev_msg가 있을 때: 현재 코드블럭 안에 있다는 이야기. prev_msg에 추가해줘야 한다.
+        3. msg에 ```가 있는데, prev_msg가 없을 때: 코드블럭의 시작일 수도 있고, 시작과 끝이 다 들어있을 수 있다.
+            시작만 한다면 prev_msg를 채워주는 걸로 충분. 시작과 끝이 다 들어 있다면 splitMsg에 넣어야 함.
+        4. msg에 ```가 있고, prev_msg가 있을 때: 확실히 코드블럭의 끝. prev_msg를 비워줘야 한다.
+
+        */
+        if (!msg.includes("```")) {
+            if (!prev_msg)
+                splitMsg.push(msg);
+            else
+                prev_msg += msg;
         } else {
-            if (!prev_msg) prev_msg = msg;
-            else {
+            if (!prev_msg) {
+                if ((msg + " ").split("```").length > 2)
+                    splitMsg.push(msg);
+                else
+                    prev_msg = msg;
+            } else {
                 splitMsg.push(prev_msg + msg);
                 prev_msg = "";
             }
