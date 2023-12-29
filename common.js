@@ -88,7 +88,9 @@ function post_process(DOMelem, message, system_message="") {
         answer_stream.answer_set = answer_stream.answer_set.replace(remain, "");
 
         html.childNodes.forEach(el => {
-            el.classList.add("tex2jax_process");
+            console.log(el);
+            if (el.classList)
+                el.classList.add("tex2jax_process");
             DOMelem.appendChild(el);
         });
     } else if (DOMelem.childElementCount === 1 && html.lastChild) {
