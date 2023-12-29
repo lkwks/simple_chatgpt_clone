@@ -75,7 +75,7 @@ function post_process(DOMelem, message, system_message="") {
     if (!answer_stream.now_streaming) {
         var html = markdown_converter.makeHtml(message);
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
-        html_element.forEach(el => DOMelem.appendChild(el));
+        html_element.childNodes.forEach(el => DOMelem.appendChild(el));
     } else if (splitMsg.length > 1) {
         DOMelem.removeChild(DOMelem.lastChild);
 
