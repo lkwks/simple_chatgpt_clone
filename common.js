@@ -126,13 +126,13 @@ function post_process(DOMelem, message, system_message="") {
         console.log(msg);
         console.log(`"${prev_msg}"`);
         if (!msg.includes("\n```") && !msg.endsWith("```") && !msg.startsWith("```")) {
-            if (prev_msg !== "")
+            if (prev_msg === "")
                 splitMsg.push(escapeParentheses(msg));
             else
                 prev_msg += msg;
             console.log(prev_msg);
         } else {
-            if (prev_msg !== "") {
+            if (prev_msg === "") {
                 console.log(1);
                 if (msg.endsWith("```"))
                     splitMsg.push(escapeParentheses(msg));
