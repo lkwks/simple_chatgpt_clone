@@ -64,7 +64,7 @@ function escapeParentheses(msg) {
     let prev_char = '';
 
     for (let i = 0; i < msg.length; i++) {
-        const char = msg[i];
+        let char = msg[i];
 
         if (char === '`') {
             backtickCount++;
