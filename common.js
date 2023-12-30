@@ -123,29 +123,22 @@ function post_process(DOMelem, message, system_message="") {
         4. msg가 ```로 시작/끝이고, prev_msg가 있을 때: 확실히 코드블럭의 끝. prev_msg를 비워줘야 한다.
 
         */
-        console.log(msg);
-        console.log(`"${prev_msg}"`);
         if (!msg.includes("\n```") && !msg.endsWith("```") && !msg.startsWith("```")) {
             if (prev_msg === "")
                 splitMsg.push(escapeParentheses(msg));
             else
-                prev_msg += msg;
-            console.log(prev_msg);
+                prev_msg += "\n\n" + msg;
         } else {
             if (prev_msg === "") {
-                console.log(1);
                 if (msg.endsWith("```"))
                     splitMsg.push(escapeParentheses(msg));
                 else
                     prev_msg = msg;
-                console.log(prev_msg);
             } else {
-                console.log(1);
-                splitMsg.push(escapeParentheses(prev_msg + msg));
+                splitMsg.push(escapeParentheses(prev_msg + "\n\n" + msg));
                 prev_msg = "";
             }
         }
-        console.log(JSON.stringify(splitMsg));
     }
     var empty_element = document.createElement("pre");
     if (!answer_stream.now_streaming) {
