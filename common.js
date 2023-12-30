@@ -124,7 +124,7 @@ function post_process(DOMelem, message, system_message="") {
 
         */
         console.log(msg);
-        console.log(`"${prev_msg)}"`);
+        console.log(`"${prev_msg}"`);
         if (!msg.includes("\n```") && !msg.endsWith("```")) {
             if (!prev_msg)
                 splitMsg.push(escapeParentheses(msg));
