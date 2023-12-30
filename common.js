@@ -65,6 +65,7 @@ function escapeParentheses(msg) {
 
     for (let i = 0; i < msg.length; i++) {
         let char = msg[i];
+        let prev_char = i > 0 ? msg[i - 1] : "";
 
         if (char === '`') {
             backtickCount++;
@@ -89,7 +90,7 @@ function escapeParentheses(msg) {
             backtickCount = 0;
 
             if (!isCodeBlock) {
-                if (['(', ')', '[', ']'].includes(char))
+                if (['(', ')', '[', ']'].includes(char) && prev_char === "\\")
                     char += '\\';
                 if (char === "\n")
                     char = "<br>";
