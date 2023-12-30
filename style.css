@@ -8,6 +8,10 @@ pre{
     width: 100%;
 }
 
+p {
+    line-height: 1.4
+}
+
 body, main, div{
     display: flex;
     justify-content: center;
