@@ -91,7 +91,7 @@ function escapeParentheses(msg) {
 
             if (!isCodeBlock) {
                 if (['(', ')', '[', ']'].includes(char) && prev_char === "\\")
-                    char += '\\';
+                    char = '\\' + char;
             }
         }
 
