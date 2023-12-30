@@ -92,8 +92,6 @@ function escapeParentheses(msg) {
             if (!isCodeBlock) {
                 if (['(', ')', '[', ']'].includes(char) && prev_char === "\\")
                     char += '\\';
-                if (char === "\n")
-                    char = "<br>";
             }
         }
 
@@ -163,6 +161,7 @@ function post_process(DOMelem, message, system_message="") {
         html_element.childNodes.forEach(el => {
             el.classList.add("tex2jax_process");
             el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
+            if (el.tagName === "P") el.innerHTML = el.innerHTML.replace(/\n/g, "<br>");
             DOMelem.appendChild(el)
         });
         DOMelem.appendChild(empty_element);
