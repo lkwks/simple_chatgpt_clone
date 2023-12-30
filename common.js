@@ -124,15 +124,15 @@ function post_process(DOMelem, message, system_message="") {
 
         */
         console.log(msg);
-        console.log(prev_msg);
-        if (!msg.includes("\n```") && !(/`{3,}$/.test(msg))) {
+        console.log(`"${prev_msg)}"`);
+        if (!msg.includes("\n```") && !msg.endsWith("```")) {
             if (!prev_msg)
                 splitMsg.push(escapeParentheses(msg));
             else
                 prev_msg += msg;
         } else {
             if (!prev_msg) {
-                if (/`{3,}$/.test(msg))
+                if (msg.endsWith("```"))
                     splitMsg.push(escapeParentheses(msg));
                 else
                     prev_msg = msg;
@@ -141,6 +141,7 @@ function post_process(DOMelem, message, system_message="") {
                 prev_msg = "";
             }
         }
+        console.log(JSON.stringify(splitMsg));
     }
     var empty_element = document.createElement("pre");
     if (!answer_stream.now_streaming) {
