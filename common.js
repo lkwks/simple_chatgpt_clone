@@ -88,8 +88,12 @@ function escapeParentheses(msg) {
 
             backtickCount = 0;
 
-            if (!isCodeBlock && ['(', ')', '[', ']'].includes(char))
-                output += '\\';
+            if (!isCodeBlock) {
+                if (['(', ')', '[', ']'].includes(char))
+                    char += '\\';
+                if (char === "\n")
+                    char = "<br>";
+            }
         }
 
         output += char;
