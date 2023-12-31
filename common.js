@@ -126,7 +126,7 @@ function post_process(DOMelem, message, system_message="") {
         4. msg가 ```로 시작/끝이고, prev_msg가 있을 때: 확실히 코드블럭의 끝. prev_msg를 비워줘야 한다.
 
         */
-        if (!msg.includes("\n```") && !msg.endsWith("```") && !msg.startsWith("```")) {
+        if (!/\n\s*```/.test(msg) && !msg.endsWith("```") && !msg.startsWith("```")) {
             if (prev_msg === "")
                 splitMsg.push(escapeParentheses(msg));
             else
