@@ -169,7 +169,7 @@ function post_process(DOMelem, message, system_message="") {
         });
         DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1)
-        DOMelem.children[DOMelem.children.length - 2].innerHTML = `${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${blinking_element.outerHTML}`;
+        DOMelem.lastChild.innerHTML = `${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${blinking_element.outerHTML}`;
     else {
         empty_element.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         DOMelem.appendChild(empty_element);
