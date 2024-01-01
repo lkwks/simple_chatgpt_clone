@@ -283,7 +283,7 @@ div.howtouse{
     z-index: 2100000;
 }
 
-span.blinking_element {
+span.blinking-element {
     width: 10px;
     height: 10px;
     background-color: black;
