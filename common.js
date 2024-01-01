@@ -17,7 +17,7 @@ const categories = new Categories(document.querySelector("div.categories"));
 const textarea = new Textarea(document.querySelector("div.prompt > textarea"));
 const model_option = new ModelOption(document.querySelector("div.model_option"));
 const answer_stream = new AnswerStream();
-const blinking_element = document.createElement("div");
+const blinking_element = document.createElement("span");
 blinking_element.classList.add("blinking-element");
 setInterval(() => { blinking_element.style.opacity = blinking_element.style.opacity === '1' ? '0' : '1'; }, 500);
 
