@@ -17,6 +17,9 @@ const categories = new Categories(document.querySelector("div.categories"));
 const textarea = new Textarea(document.querySelector("div.prompt > textarea"));
 const model_option = new ModelOption(document.querySelector("div.model_option"));
 const answer_stream = new AnswerStream();
+const blinking_element = document.createElement("div");
+blinking_element.classList.add("blinking-element");
+setInterval(() => { blinking_element.style.opacity = blinking_element.style.opacity === '1' ? '0' : '1'; }, 500);
 
 function make_codeblock(splitted1, splitted2)
 {
@@ -165,11 +168,13 @@ function post_process(DOMelem, message, system_message="") {
             DOMelem.appendChild(el)
         });
         DOMelem.appendChild(empty_element);
+        DOMelem.removeChild(blinking_element);
     } else if (DOMelem.childElementCount > 1)
-        DOMelem.lastChild.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        DOMelem.children[DOMelem.children.length - 2].innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     else {
         empty_element.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         DOMelem.appendChild(empty_element);
+        DOMelem.appendChild(blinking_element);
     }
 
     Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
