@@ -282,3 +282,10 @@ div.howtouse{
     position: absolute;
     z-index: 2100000;
 }
+
+span.blinking_element {
+    width: 10px;
+    height: 10px;
+    background-color: black;
+    transition: opacity 0.5s ease-in-out;
+};
