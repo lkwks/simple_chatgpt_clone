@@ -163,15 +163,15 @@ div.assistant{
 }
 
 pre > code{
-    background-color: white !important;
     padding: 25px !important;
     border-radius: 10px;
+    width: 100%;
 }
 
-p > code {
+code {
     width: fit-content;
     padding: 3px;
-    background-color: white;
+    background-color: white !important;
 }
 
 span.block {
