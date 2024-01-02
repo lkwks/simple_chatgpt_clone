@@ -20,6 +20,7 @@ const answer_stream = new AnswerStream();
 const blinking_element = document.createElement("span");
 blinking_element.classList.add("blinking-element");
 setInterval(() => { blinking_element.style.opacity = blinking_element.style.opacity === '1' ? '0' : '1'; }, 500);
+const availableLanguages = hljs.listLanguages();
 
 function make_codeblock(splitted1, splitted2)
 {
@@ -147,37 +148,41 @@ function post_process(DOMelem, message, system_message="") {
         }
     }
     var empty_element = document.createElement("pre");
-    if (!answer_stream.now_streaming) {
-        var html = markdown_converter.makeHtml(message);
-        var html_element = new DOMParser().parseFromString(html, 'text/html').body;
-        html_element.childNodes.forEach(el => DOMelem.appendChild(el));
-    } else if (splitMsg.length > 1) {
-        DOMelem.removeChild(DOMelem.lastChild);
+    if (!answer_stream.now_streaming || splitMsg.length > 1) {
+        let html = "";
 
-        empty_element.innerHTML = splitMsg[splitMsg.length - 1];
-        answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
+        if (answer_stream.now_streaming) {
+            DOMelem.removeChild(DOMelem.lastChild);
 
-        splitMsg.pop();
-        console.log(splitMsg.join("\n\n"));
-        var html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
+            empty_element.innerHTML = splitMsg[splitMsg.length - 1];
+            answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
+
+            splitMsg.pop();
+            html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
+        } else 
+            html = markdown_converter.makeHtml(message);
+
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
         html_element.childNodes.forEach(el => {
             el.classList.add("tex2jax_process");
-            el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
             if (el.tagName === "P") el.innerHTML = el.innerHTML.replace(/\n/g, "<br>");
+            if (el.tagName === "PRE" && el.querySelector("code")) {
+                const code_el = el.querySelector("code");
+                if (!Array.from(code_el.classList).some(cls => availableLanguages.includes(cls)))
+                    code_el.className = '';
+                hljs.highlightElement(code_el);
+            }
+            el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
             DOMelem.appendChild(el)
         });
-        DOMelem.appendChild(empty_element);
+
+        if (answer_stream.now_streaming) DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1)
         DOMelem.lastChild.innerHTML = `${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${blinking_element.outerHTML}`;
     else {
         empty_element.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         DOMelem.appendChild(empty_element);
     }
-
-    Array.from(DOMelem.querySelectorAll("pre > code")).forEach(elem => {
-        if (elem.classList.contains("hljs") === false) hljs.highlightElement(elem);
-    });
 }
 
 
@@ -211,5 +216,3 @@ async function chatgpt_api(messages, stream_mode=false)
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
-console.log(hljs.listLanguages());
