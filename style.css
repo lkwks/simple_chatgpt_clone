@@ -166,6 +166,7 @@ pre > code{
     padding: 25px !important;
     border-radius: 10px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 code {
