@@ -211,3 +211,5 @@ async function chatgpt_api(messages, stream_mode=false)
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+console.log(hljs.listLanguages());
