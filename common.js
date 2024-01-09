@@ -176,7 +176,7 @@ function post_process(DOMelem, message, system_message="") {
             DOMelem.appendChild(el)
         });
 
-        if (answer_stream.now_streaming) DOMelem.appendChild(empty_element);
+        if (answer_stream.now_streaming && empty_element.innerText !== "ENDOFSTREAM") DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1)
         DOMelem.lastChild.innerHTML = `${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${blinking_element.outerHTML}`;
     else {
