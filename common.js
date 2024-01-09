@@ -78,8 +78,8 @@ function escapeParentheses(msg) {
         }
         else {
             if ((backtickCount === 1 || backtickCount >= 3) && !isCodeBlock) {
-                // 코드블럭 시작 조건: 지금 코드블럭 밖이고, 묶음 내 백틱 개수는 1개 또는 3개 이상이고, 백틱묶음 앞에 "가 없을 것.
-                if (prev_char !== `"`) {
+                // 코드블럭 시작 조건: 지금 코드블럭 밖이고, 묶음 내 백틱 개수는 1개 또는 3개 이상이고, 백틱묶음 앞에 ", (가 없을 것.
+                if (prev_char !== `"` && prev_char !== `(`) {
                     isCodeBlock = true;
                     startBacktickCount = backtickCount;
                 } else {
@@ -130,7 +130,7 @@ function post_process(DOMelem, message, system_message="") {
         4. msg가 ```로 시작/끝이고, prev_msg가 있을 때: 확실히 코드블럭의 끝. prev_msg를 비워줘야 한다.
 
         */
-        if (!/\n\s*```/.test(msg) && !msg.endsWith("```") && !msg.startsWith("```")) {
+        if (!/\n\s*```/.test(msg) && !msg.endsWith("```") && !/^\s*```/.test(msg)) {
             if (prev_msg === "")
                 splitMsg.push(escapeParentheses(msg));
             else
