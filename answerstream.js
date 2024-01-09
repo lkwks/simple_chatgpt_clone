@@ -29,7 +29,7 @@ export class AnswerStream{
     
     end()
     {        
-        post_process(response_div.$target.lastChild, this.answer_buffer + "\n\n ");
+        post_process(response_div.$target.lastChild, this.answer_buffer);
         this.signal = false;
         this.now_streaming = false;
     }
