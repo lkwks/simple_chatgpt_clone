@@ -196,6 +196,9 @@ span {
     width: fit-content;
 }
 
+code span {
+    display: inline;
+}
 
 div.categories{
     flex-direction: column;
