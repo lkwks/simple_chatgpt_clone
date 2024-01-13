@@ -163,8 +163,7 @@ function post_process(DOMelem, message, system_message="") {
             html = markdown_converter.makeHtml(message);
 
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
-        html_element.childNodes.forEach(el => {
-            el.classList.add("tex2jax_process");
+        html_element.childNodes.forEach(async el => {
             if (el.tagName === "P") el.innerHTML = el.innerHTML.replace(/\n/g, "<br>");
             if (el.tagName === "PRE" && el.querySelector("code")) {
                 const code_el = el.querySelector("code");
@@ -173,6 +172,12 @@ function post_process(DOMelem, message, system_message="") {
                 hljs.highlightElement(code_el);
             }
             el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
+            el.classList.add("tex2jax_process");
+            try {
+                await MathJax.typesetPromise(el);
+            } catch(e) {
+                console.log(e);
+            }
             DOMelem.appendChild(el)
         });
 
