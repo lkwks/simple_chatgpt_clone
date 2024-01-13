@@ -182,10 +182,12 @@ function post_process(DOMelem, message, system_message="") {
             }
             el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
             el.classList.add("tex2jax_process");
+            const el_temp = el;
             try {
-                await MathJax.typesetPromise(el);
+                await MathJax.typesetPromise([el]);
             } catch(e) {
                 console.log(e);
+                el = el_temp;
             }
             DOMelem.appendChild(el)
         });
