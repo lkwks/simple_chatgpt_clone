@@ -120,6 +120,15 @@ function post_process(DOMelem, message, system_message="") {
 
     var markdown_converter = new showdown.Converter();
     var splitMsg = [], prev_msg = "";
+    /*
+
+    현재 어려운 점
+    1. 마크다운은 `\n\n`을 기준으로 문단 구분이 이뤄지고, 따라서 이걸 기준으로 streaming이 일어나는 부분과 streaming이 종료된 부분을 구분하고 있음.
+    2. 그런데 `\n\n`이 나왔다 하더라도 코드블럭 안이라면 streaming 일어나고 있는 중으로 파악해야 함. 이것 때문에 아래 코드가 매우 길고 복잡해짐.
+    3. 한편 `\n\n`으로 구분한 다음에 바로 각 덩어리들을 마크다운 스타일링 할 게 아니라, MathJax 구분문자를 포함하는지 확인하고 만약 포함한다면 MathJax 적용을 먼저 하고 그 다음으로 마크다운 스타일링을 해야 함.
+    4. MathJax 구분문자로 둘러 쌓인 부분이 있는지 확인하는 코드는 코드블럭 안인지 여부 확인하는 코드만큼 길고 복잡해질 듯. 그 부분을 깔끔하게 구현했으면 이것도 쉬운데, 지금 코드 구조가 전체적으로 조잡한 느낌이 있어서 굉장히 문제가 귀찮아진 점이 있음. 시간 많아지면 리팩토링 하고 다시 봐야 할 듯.
+    
+    */
     for (const msg of message.split("\n\n")) {
         /*
 
