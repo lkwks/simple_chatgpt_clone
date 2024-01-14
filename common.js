@@ -66,7 +66,6 @@ function escapeParentheses(msg) {
     let startBacktickCount = 0;
     let output = '';
     let prev_char = '';
-    msg = msg.replace(/[ ]*```/g, "```");
 
     for (let i = 0; i < msg.length; i++) {
         let char = msg[i];
