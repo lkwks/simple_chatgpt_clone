@@ -66,6 +66,7 @@ function escapeParentheses(msg) {
     let startBacktickCount = 0;
     let output = '';
     let prev_char = '';
+    msg = msg.replace(/\s*```/g, "```");
 
     for (let i = 0; i < msg.length; i++) {
         let char = msg[i];
@@ -143,7 +144,7 @@ function post_process(DOMelem, message, system_message="") {
             if (prev_msg === "")
                 splitMsg.push(escapeParentheses(msg));
             else
-                prev_msg += "\n\n" + msg;
+                prev_msg += "\n\n";
         } else {
             if (prev_msg === "") {
                 if (msg.endsWith("```"))
@@ -185,7 +186,7 @@ function post_process(DOMelem, message, system_message="") {
             DOMelem.appendChild(el);
         });
 
-        if (answer_stream.now_streaming && empty_element.innerText !== "ENDOFSTREAM") DOMelem.appendChild(empty_element);
+        if (answer_stream.now_streaming && !empty_element.innerText.includes("ENDOFSTREAM")) DOMelem.appendChild(empty_element);
     } else if (DOMelem.childElementCount > 1)
         DOMelem.lastChild.innerHTML = `${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${blinking_element.outerHTML}`;
     else {
