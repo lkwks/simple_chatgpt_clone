@@ -183,8 +183,10 @@ function post_process(DOMelem, message, system_message="") {
 
             splitMsg.pop();
             html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
-        } else 
+        } else {
+            console.log(message);
             html = markdown_converter.makeHtml(message);
+        }
 
         var html_element = new DOMParser().parseFromString(html, 'text/html').body;
         html_element.childNodes.forEach(async el => {
@@ -193,7 +195,6 @@ function post_process(DOMelem, message, system_message="") {
                 const code_el = el.querySelector("code");
                 if (!Array.from(code_el.classList).some(cls => availableLanguages.includes(cls)))
                     code_el.className = '';
-                console.log(code_el.innerHTML);
                 hljs.highlightElement(code_el);
             }
             el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
