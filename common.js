@@ -131,6 +131,7 @@ function post_process(DOMelem, message, system_message="") {
     4. MathJax 구분문자로 둘러 쌓인 부분이 있는지 확인하는 코드는 코드블럭 안인지 여부 확인하는 코드만큼 길고 복잡해질 듯. 그 부분을 깔끔하게 구현했으면 이것도 쉬운데, 지금 코드 구조가 전체적으로 조잡한 느낌이 있어서 굉장히 문제가 귀찮아진 점이 있음. 시간 많아지면 리팩토링 하고 다시 봐야 할 듯.
     
     */
+    let codeblock_start = false, codeblock_end = false;
     for (const msg of message.split("\n\n")) {
         /*
 
@@ -143,7 +144,8 @@ function post_process(DOMelem, message, system_message="") {
         */
 
         const pattern = /(\s*```)/g;
-        let match, codeblock_start = false, codeblock_end = false;
+        let match;
+        codeblock_start = false, codeblock_end = false;
         while ((match = pattern.exec(msg)) !== null) {
             if ((match.index > 0 && msg[match.index - 1] === '\n' || match.index === 0) && !codeblock_start) {
                 codeblock_start = true;
@@ -182,6 +184,8 @@ function post_process(DOMelem, message, system_message="") {
             answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
             splitMsg.pop();
+            if (codeblock_start || codeblock_end)
+                console.log(splitMsg.join("\n\n"));
             html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
         } else {
             console.log(message);
