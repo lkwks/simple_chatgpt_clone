@@ -104,6 +104,7 @@ function escapeParentheses(msg) {
         output += char;
     }
 
+    if (output.split("```").length > 2) console.log(output);
     return output;
 }
 
@@ -185,7 +186,6 @@ function post_process(DOMelem, message, system_message="") {
 
             splitMsg.pop();
             const message_joined = splitMsg.join("\n\n")
-            if (message_joined.split("```").length > 2) console.log(message_joined);
             html = markdown_converter.makeHtml(message_joined);
         } else {
             console.log(message);
