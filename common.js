@@ -149,6 +149,7 @@ function post_process(DOMelem, message, system_message="") {
         let match;
         codeblock_start = false, codeblock_end = false;
         while ((match = pattern.exec(msg)) !== null) {
+            console.log(match);
             if ((match.index > 0 && msg[match.index - 1] === '\n' || match.index === 0) && !codeblock_start) {
                 codeblock_start = true;
                 console.log("codeblock start");
