@@ -118,8 +118,6 @@ function post_process(DOMelem, message, system_message="") {
     if (message.endsWith("\n-"))
         message = message.substring(0, message.length - 2);
 
-    if (message.split("```").length > 2) console.log(message);
-
     if (system_message)
         message = `\`${system_message}\` "${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`;
 
@@ -164,7 +162,7 @@ function post_process(DOMelem, message, system_message="") {
             if (prev_msg === "")
                 splitMsg.push(escapeParentheses(msg));
             else
-                prev_msg += "\n\n";
+                prev_msg += "\n\n" + msg;
         } else {
             if (prev_msg === "") {
                 if (codeblock_end)
