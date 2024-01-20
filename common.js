@@ -145,7 +145,7 @@ function post_process(DOMelem, message, system_message="") {
         const pattern = /(\s*```)/g;
         let match, codeblock_start = false, codeblock_end = false;
         while ((match = pattern.exec(msg)) !== null) {
-            if (match.index > 0 && str[match.index - 1] === '\n' || match.index === 0) {
+            if (match.index > 0 && msg[match.index - 1] === '\n' || match.index === 0) {
                 codeblock_start = true;
             } else if (msg.length > match.index + match[0].length && msg[match.index + match[0].length] === '\n') {
                 codeblock_end = true;
