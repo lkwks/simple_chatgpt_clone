@@ -67,6 +67,8 @@ function escapeParentheses(msg) {
     let output = '';
     let prev_char = '';
 
+    if (msg.split("```").length > 2) console.log(msg);
+    
     for (let i = 0; i < msg.length; i++) {
         let char = msg[i];
         let prev_char = i > 0 ? msg[i - 1] : "";
@@ -104,7 +106,6 @@ function escapeParentheses(msg) {
         output += char;
     }
 
-    if (output.split("```").length > 2) console.log(output);
     return output;
 }
 
