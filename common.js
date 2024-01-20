@@ -147,8 +147,10 @@ function post_process(DOMelem, message, system_message="") {
         while ((match = pattern.exec(msg)) !== null) {
             if (match.index > 0 && msg[match.index - 1] === '\n' || match.index === 0) {
                 codeblock_start = true;
-            } else if (msg.length > match.index + match[0].length && msg[match.index + match[0].length] === '\n') {
+                console.log("codeblock start");
+            } else if (msg.length >= match.index + match[0].length && msg[match.index + match[0].length] === '\n') {
                 codeblock_end = true;
+                console.log("codeblock end");
             }
         }
 
