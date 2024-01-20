@@ -184,9 +184,9 @@ function post_process(DOMelem, message, system_message="") {
             answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
             splitMsg.pop();
-            if (codeblock_start || codeblock_end)
-                console.log(splitMsg.join("\n\n"));
-            html = markdown_converter.makeHtml(splitMsg.join("\n\n"));
+            const message_joined = splitMsg.join("\n\n")
+            if (message_joined.split("```").length > 2) console.log(message_joined);
+            html = markdown_converter.makeHtml(message_joined);
         } else {
             console.log(message);
             html = markdown_converter.makeHtml(message);
