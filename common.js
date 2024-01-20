@@ -67,7 +67,6 @@ function escapeParentheses(msg) {
     let output = '';
     let prev_char = '';
 
-    if (msg.split("```").length > 2) console.log(msg);
     
     for (let i = 0; i < msg.length; i++) {
         let char = msg[i];
@@ -118,6 +117,8 @@ function post_process(DOMelem, message, system_message="") {
     let result = ""; 
     if (message.endsWith("\n-"))
         message = message.substring(0, message.length - 2);
+
+    if (message.split("```").length > 2) console.log(message);
 
     if (system_message)
         message = `\`${system_message}\` "${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`;
