@@ -94,7 +94,7 @@ function escapeParentheses(msg) {
             backtickCount = 0;
 
             if (!isCodeBlock) {
-                if (['(', ')', '[', ']'].includes(char) && prev_char === "\\")
+                if ((['(', ')', '[', ']'].includes(char) && prev_char === "\\") || char.includes('*'))
                     char = '\\' + char;
             }
         }
@@ -139,14 +139,25 @@ function post_process(DOMelem, message, system_message="") {
         4. msg가 ```로 시작/끝이고, prev_msg가 있을 때: 확실히 코드블럭의 끝. prev_msg를 비워줘야 한다.
 
         */
-        if (!/\n\s*```/.test(msg) && !msg.endsWith("```") && !/^\s*```/.test(msg)) {
+
+        const pattern = /(\s*```)/g;
+        let match, codeblock_start = false, codeblock_end = false;
+        while ((match = pattern.exec(msg)) !== null) {
+            if (match.index > 0 && str[match.index - 1] === '\n' || match.index === 0) {
+                codeblock_start = true;
+            } else if (str.length > match.index + match[0].length && str[match.index + match[0].length] === '\n') {
+                codeblock_end = true;
+            }
+        }
+
+        if (!codeblock_start && !codeblock_end) {
             if (prev_msg === "")
                 splitMsg.push(escapeParentheses(msg));
             else
                 prev_msg += "\n\n";
         } else {
             if (prev_msg === "") {
-                if (msg.endsWith("```"))
+                if (codeblock_end)
                     splitMsg.push(escapeParentheses(msg));
                 else
                     prev_msg = msg;
@@ -178,6 +189,7 @@ function post_process(DOMelem, message, system_message="") {
                 const code_el = el.querySelector("code");
                 if (!Array.from(code_el.classList).some(cls => availableLanguages.includes(cls)))
                     code_el.className = '';
+                console.log(code_el.innerHTML);
                 hljs.highlightElement(code_el);
             }
             el.querySelectorAll('code').forEach(el => el.classList.add("tex2jax_ignore"));
