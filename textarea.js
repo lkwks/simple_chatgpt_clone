@@ -162,8 +162,10 @@ export class Textarea{
                    {
                        answer_stream.start();
                        val = JSON.parse(message.replace("data: ", ""));
-                       if (val.choices[0].delta.content)
+                       if (val.choices[0].delta.content) {
+                           console.log(val.choices[0].delta.content);
                            await answer_stream.add_answer(val.choices[0].delta.content);
+                       }
                    }
 
                 messages.update_last_token(answer_stream.answer_set.split(" ").length);
