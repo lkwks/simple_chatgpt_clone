@@ -141,8 +141,8 @@ export class Textarea{
         messages.scrollIntoView();
 
         await chatgpt_api([/* messages.system_message,*/ ...messages.messages]/*, true*/).then(async response => {
-            const result = await response.json();
-            console.log(result);
+            
+            console.log(response);
             return;
             const reader = response.body.getReader();
             let buffer = '';
