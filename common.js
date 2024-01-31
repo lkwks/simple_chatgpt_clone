@@ -219,6 +219,7 @@ function post_process(DOMelem, message, system_message="") {
 
 async function chatgpt_api(messages, stream_mode=false)
 {
+    console.log(messages, stream_mode);
     const api_url = "https://api.openai.com/v1/chat/completions";
     let param = {
         method: "POST",
