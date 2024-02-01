@@ -15,8 +15,8 @@ export class Messages{
         document.querySelector("div.response").innerHTML = "";
                 
         localStorage.setItem("thread_temp", "[]");
-        this.messages = []; // [{role: "user", content: ""}];
-        this.message_objects = []; // [new Message("", "user")];
+        this.messages = [{role: "user", content: ""}];
+        this.message_objects = [new Message("", "user")];
         this.system_message = {role: "system", content: "If your answer contains code blocks, you should specify their language in them. If your answer contains mathematical expressions, you should use LaTeX expressions."};
     }
 
