@@ -181,7 +181,9 @@ export class Textarea{
                     thread.make_title();
                 thread.push({role: "assistant", content: answer_stream.answer_set}, true);
 
-                if (val.choices[0].finish_reason === "length")
+                if (!val.choices) {
+                }
+                else if (val.choices[0].finish_reason === "length")
                 {
                     // 여기서 continue를 추가하면 무슨 일이 일어나나?
                     // continue 메시지 객체가 만들어지고, 그게 메시지 배열에 푸시된다. (render는 안된다.) 
