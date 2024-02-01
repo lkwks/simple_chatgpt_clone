@@ -148,6 +148,7 @@ export class Textarea{
             let buffer = '';
 
             await reader.read().then(async function processResult(result) {
+                console.log(1);
                 if (answer_stream.signal) return "";
                 buffer += new TextDecoder('utf-8').decode(result.value || new Uint8Array());
                   
@@ -156,6 +157,7 @@ export class Textarea{
                 if (messages_buffer.length === 0 || textarea.stop_stream) 
                 {
                     textarea.end_stream();
+                    console.log(1);
                     return;
                 }
 
@@ -184,11 +186,13 @@ export class Textarea{
                     textarea.end_stream();
                     messages.push_message({role: "user", content: "continue"});
                     textarea.send_message();
+                    console.log(1);
                     return;
                 }
                 else if (val.choices[0].finish_reason === "stop")
                 {
                     textarea.end_stream();
+                    console.log(1);
                     return;
                 }
                 
