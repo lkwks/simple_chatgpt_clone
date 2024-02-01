@@ -135,12 +135,13 @@ export class Textarea{
         }
 
         this.lock(); // 락 걸렸을 때 락 걸린 거 풀고 메시지 생성 중단시키는 버튼 만들고 싶음. 예를 들어 gpt-3.5로 리턴 받다가 끊고 gpt-4로 api를 변경한다든지.
+        messages.pop();
         messages.push_message({role: "user", content: prompt});
-        messages.push_message({role: "assistant", content: ""});
+        // messages.push_message({role: "assistant", content: ""});
         this.$target.value = "Generating...";
         messages.scrollIntoView();
 
-        await chatgpt_api([messages.system_message, ...messages.messages], true).then(async response => {
+        await chatgpt_api([/*messages.system_message,*/ ...messages.messages], true).then(async response => {
             
             console.log(response);
             // return;
