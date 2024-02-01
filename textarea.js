@@ -140,10 +140,10 @@ export class Textarea{
         this.$target.value = "Generating...";
         messages.scrollIntoView();
 
-        await chatgpt_api([/* messages.system_message,*/ ...messages.messages]/*, true*/).then(async response => {
+        await chatgpt_api([messages.system_message, ...messages.messages], true).then(async response => {
             
             console.log(response);
-            return;
+            // return;
             const reader = response.body.getReader();
             let buffer = '';
 
