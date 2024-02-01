@@ -96,7 +96,8 @@ export class Messages{
 
     scrollIntoView(i=1)
     {
-        this.message_objects[this.message_objects.length-i-1].element.scrollIntoView({ behavior: 'smooth' });
+        if (this.message_objects.length-i-1 >= 0)
+            this.message_objects[this.message_objects.length-i-1].element.scrollIntoView({ behavior: 'smooth' });
     }
 
     get_last_element()
