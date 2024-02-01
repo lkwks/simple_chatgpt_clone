@@ -148,9 +148,12 @@ export class Textarea{
             let buffer = '';
 
             await reader.read().then(async function processResult(result) {
-                console.log(1);
-                if (answer_stream.signal) return "";
+                if (answer_stream.signal) {
+                    console.log(1);
+                    return "";
+                }
                 buffer += new TextDecoder('utf-8').decode(result.value || new Uint8Array());
+                console.log(buffer);
                   
                 var messages_buffer = buffer.split('\n\n')
                 buffer = messages_buffer.pop();
