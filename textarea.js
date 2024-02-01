@@ -181,7 +181,7 @@ export class Textarea{
                     thread.make_title();
                 thread.push({role: "assistant", content: answer_stream.answer_set}, true);
 
-                if (!val.choices) {
+                if (!(choices in val)) {
                 }
                 else if (val.choices[0].finish_reason === "length")
                 {
