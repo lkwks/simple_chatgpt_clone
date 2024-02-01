@@ -153,10 +153,10 @@ export class Textarea{
                     return "";
                 }
                 buffer += new TextDecoder('utf-8').decode(result.value || new Uint8Array());
-                console.log(buffer);
                   
                 var messages_buffer = buffer.split('\n\n')
                 buffer = messages_buffer.pop();
+                console.log(buffer, messages_buffer);
                 if (messages_buffer.length === 0 || textarea.stop_stream) 
                 {
                     textarea.end_stream();
