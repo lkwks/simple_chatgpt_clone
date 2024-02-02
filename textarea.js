@@ -170,7 +170,7 @@ export class Textarea{
                    {
                        answer_stream.start();
                        val = JSON.parse(message.replace("data: ", ""));
-                       if (val.choices[0].delta.content) {
+                       if (val && "choices" in val && val.choices[0].delta.content) {
                            console.log(val.choices[0].delta.content);
                            await answer_stream.add_answer(val.choices[0].delta.content);
                        }
