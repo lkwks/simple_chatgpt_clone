@@ -182,7 +182,7 @@ function post_process(DOMelem, message, system_message="") {
         if (answer_stream.now_streaming) {
             DOMelem.removeChild(DOMelem.lastChild);
 
-            empty_element.innerHTML = splitMsg[splitMsg.length - 1];
+            empty_element.textContent = splitMsg[splitMsg.length - 1];
             answer_stream.answer_buffer = splitMsg[splitMsg.length - 1];
 
             splitMsg.pop();
@@ -208,10 +208,11 @@ function post_process(DOMelem, message, system_message="") {
         });
 
         if (answer_stream.now_streaming && !empty_element.innerText.includes("ENDOFSTREAM")) DOMelem.appendChild(empty_element);
-    } else if (DOMelem.childElementCount > 1)
-        DOMelem.lastChild.innerHTML = `${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${blinking_element.outerHTML}`;
-    else {
-        empty_element.innerHTML = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    } else if (DOMelem.childElementCount > 1) {
+        DOMelem.lastChild.textContent = message;
+        DOMelem.lastChild.innerHTML = `${DOMelem.lastChild.textContent}${blinking_element.outerHTML}`;
+    } else {
+        empty_element.textContent = message;
         DOMelem.appendChild(empty_element);
     }
 }
