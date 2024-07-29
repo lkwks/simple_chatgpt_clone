@@ -3,7 +3,7 @@ export class ModelOption {
         this.$target = $target;
         this.model = "";
         this.token = 0;
-        this.select("gpt-3.5-turbo", 16384);
+        this.select("gpt-4o-mini", 128000);
     }
 
     select(model, token) {
