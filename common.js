@@ -231,7 +231,7 @@ async function chatgpt_api(messages, stream_mode=false)
         }
     };
     console.log(`Model: ${model_option.model}`);
-    let body_param = {model: model_option.model, messages: messages, temperature: 0.7};
+    let body_param = {model: model_option.model, messages: messages, temperature: 0.3};
 
     if (stream_mode) 
     {
